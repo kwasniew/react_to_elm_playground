@@ -24,6 +24,7 @@ type alias Product =
 
 type Msg
     = UpVote Int
+    | DownVote Int
     | RandomVotes (List Int)
 
 
@@ -99,6 +100,10 @@ product info =
                             [ i [ class "large caret up icon" ]
                                 []
                             ]
+                        , a [ onClick (DownVote info.id) ]
+                            [ i [ class "large caret down icon" ]
+                                []
+                            ]
                         , p []
                             [ b [] [ text (toString info.votes) ] ]
                         ]
@@ -143,9 +148,22 @@ upvoteProduct id product =
         product
 
 
+downvoteProduct : Int -> Product -> Product
+downvoteProduct id product =
+    if product.id == id then
+        { product | votes = product.votes - 1 }
+    else
+        product
+
+
 upvote : List Product -> Int -> List Product
 upvote products id =
     List.map (upvoteProduct id) products
+
+
+downvote : List Product -> Int -> List Product
+downvote products id =
+    List.map (downvoteProduct id) products
 
 
 assignVotes : List Product -> List Int -> List Product
@@ -158,6 +176,9 @@ update msg model =
     case msg of
         UpVote id ->
             ( { model | products = (upvote model.products id) |> sortProducts }, Cmd.none )
+
+        DownVote id ->
+            ( { model | products = (downvote model.products id) |> sortProducts }, Cmd.none )
 
         RandomVotes votes ->
             ( { model | products = (assignVotes model.products votes) |> sortProducts }, Cmd.none )
