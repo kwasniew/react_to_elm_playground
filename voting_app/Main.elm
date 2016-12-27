@@ -22,7 +22,7 @@ type alias Product =
 
 
 type Msg
-    = UpVote
+    = UpVote Int
 
 
 init : ( Model, Cmd Msg )
@@ -89,7 +89,7 @@ product info =
             [ div [ class "ui grid" ]
                 [ div [ class "three wide column" ]
                     [ div [ class "ui basic center aligned segment" ]
-                        [ a [ onClick UpVote ]
+                        [ a [ onClick (UpVote info.id) ]
                             [ i [ class "large caret up icon" ]
                                 []
                             ]
@@ -114,9 +114,24 @@ product info =
         ]
 
 
+upvoteProduct : Int -> Product -> Product
+upvoteProduct id product =
+    if product.id == id then
+        { product | votes = product.votes + 1 }
+    else
+        product
+
+
+upvote : List Product -> Int -> List Product
+upvote products id =
+    List.map (upvoteProduct id) products
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    ( model, Cmd.none )
+    case msg of
+        UpVote id ->
+            ( { model | products = upvote model.products id }, Cmd.none )
 
 
 main : Program Never Model Msg
