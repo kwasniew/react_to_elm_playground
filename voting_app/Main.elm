@@ -114,6 +114,21 @@ product info =
         ]
 
 
+productComparison : Product -> Product -> Order
+productComparison a b =
+    if a.votes < b.votes then
+        GT
+    else if a.votes > b.votes then
+        LT
+    else
+        EQ
+
+
+sortProducts : List Product -> List Product
+sortProducts products =
+    List.sortWith productComparison products
+
+
 upvoteProduct : Int -> Product -> Product
 upvoteProduct id product =
     if product.id == id then
@@ -131,7 +146,7 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         UpVote id ->
-            ( { model | products = upvote model.products id }, Cmd.none )
+            ( { model | products = (upvote model.products id) |> sortProducts }, Cmd.none )
 
 
 main : Program Never Model Msg
