@@ -3,6 +3,7 @@ module Main exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
+import Random
 
 
 type alias Model =
@@ -23,6 +24,7 @@ type alias Product =
 
 type Msg
     = UpVote Int
+    | RandomVotes (List Int)
 
 
 init : ( Model, Cmd Msg )
@@ -62,7 +64,7 @@ init =
               }
             ]
       }
-    , Cmd.none
+    , Random.generate RandomVotes (Random.list 4 (Random.int 15 65))
     )
 
 
@@ -142,11 +144,19 @@ upvote products id =
     List.map (upvoteProduct id) products
 
 
+assignVotes : List Product -> List Int -> List Product
+assignVotes products votes =
+    List.map2 (\product voteCount -> { product | votes = voteCount }) products votes
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         UpVote id ->
             ( { model | products = (upvote model.products id) |> sortProducts }, Cmd.none )
+
+        RandomVotes votes ->
+            ( { model | products = (assignVotes model.products votes) |> sortProducts }, Cmd.none )
 
 
 main : Program Never Model Msg
