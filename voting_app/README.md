@@ -1,4 +1,4 @@
-### Running the app
+# Running the app
 
 1. Ensure you have `elm` installed.
 
@@ -20,4 +20,4 @@ The server is now running at [localhost:8000](localhost:8000)
 
 - not possible to use local component state, external model required which
 is not convenient for quick hacks but good for long term maintenance
-- random number generation restricted to update function
+- random number generation restricted to init/update functions
