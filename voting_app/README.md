@@ -15,3 +15,8 @@ elm-live Main.elm --dir=. --pushstate --output=elm.js
 ````
 
 The server is now running at [localhost:8000](localhost:8000)
+
+# Lessons learned
+
+- not possible to use local component state, external model required which
+is not convenient for quick hacks but good for long term maintenance
