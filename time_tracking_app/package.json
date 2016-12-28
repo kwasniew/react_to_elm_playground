@@ -1,0 +1,17 @@
+{
+  "name": "timer_app",
+  "version": "1.0.0",
+  "author": "Fullstack.io",
+  "scripts": {
+    "go": "open http://localhost:3000; npm run server",
+    "server": "node server.js",
+    "start": "npm run server"
+  },
+  "private": true,
+  "dependencies": {
+    "body-parser": "1.14.1",
+    "express": "4.13.3",
+    "fs": "0.0.2",
+    "path": "0.12.7"
+  }
+}
