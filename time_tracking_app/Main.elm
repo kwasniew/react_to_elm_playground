@@ -12,6 +12,10 @@ type alias Model =
     }
 
 
+type alias Flags =
+    { now : Time }
+
+
 type alias Timer =
     { title : String
     , project : String
@@ -32,13 +36,13 @@ type Msg
     = Tick Time
 
 
-init : ( Model, Cmd Msg )
-init =
+init : Flags -> ( Model, Cmd Msg )
+init flags =
     ( { timers =
             [ { title = "Learn Elm", project = "Web Domination", elapsed = 8986300, runningSince = Nothing, editFormOpen = False }
             , { title = "Learn extreme ironing", project = "World Domination", elapsed = 3890985, runningSince = Nothing, editFormOpen = True }
             ]
-      , currentTime = 0
+      , currentTime = flags.now
       }
     , Cmd.none
     )
@@ -151,7 +155,7 @@ subscriptions model =
     Time.every Time.second Tick
 
 
-main : Program Never Model Msg
+main : Program Flags Model Msg
 main =
-    Html.program
+    Html.programWithFlags
         { view = view, init = init, update = update, subscriptions = subscriptions }
