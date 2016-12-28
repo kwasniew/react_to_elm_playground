@@ -105,12 +105,30 @@ timerForm maybeTimer =
 
 timerView : Timer -> Html Msg
 timerView timer =
-    div [] []
+    div [ class "ui centered card" ]
+        [ div [ class "content" ]
+            [ div [ class "header" ] [ text timer.title ]
+            , div [ class "meta" ] [ text timer.project ]
+            , div [ class "center aligned description" ] [ h2 [] [ text (toString timer.elapsed) ] ]
+            ]
+        , div [ class "extra content" ]
+            [ span [ class "right floated edit icon" ]
+                [ i [ class "edit icon" ] []
+                ]
+            , span [ class "right floated trash icon" ]
+                [ i [ class "trash icon" ] []
+                ]
+            ]
+        , div [ class "ui bottom attached blue basic button" ] [ text "Start" ]
+        ]
 
 
 toggleableTimerForm : Bool -> Html Msg
 toggleableTimerForm isOpen =
-    div [] []
+    if isOpen then
+        timerForm Nothing
+    else
+        div [] []
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
