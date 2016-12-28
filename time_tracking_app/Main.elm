@@ -2,18 +2,21 @@ module Main exposing (..)
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
+import Helpers exposing (renderElapsedString)
+import Time exposing (..)
 
 
 type alias Model =
     { timers : List Timer
+    , currentTime : Maybe Time
     }
 
 
 type alias Timer =
     { title : String
     , project : String
-    , elapsed : Int
-    , runningSince : Maybe Int
+    , elapsed : Time
+    , runningSince : Maybe Time
     , editFormOpen : Bool
     }
 
@@ -35,6 +38,7 @@ init =
             [ { title = "Learn Elm", project = "Web Domination", elapsed = 8986300, runningSince = Nothing, editFormOpen = False }
             , { title = "Learn extreme ironing", project = "World Domination", elapsed = 3890985, runningSince = Nothing, editFormOpen = True }
             ]
+      , currentTime = Nothing
       }
     , Cmd.none
     )
@@ -105,22 +109,26 @@ timerForm maybeTimer =
 
 timerView : Timer -> Html Msg
 timerView timer =
-    div [ class "ui centered card" ]
-        [ div [ class "content" ]
-            [ div [ class "header" ] [ text timer.title ]
-            , div [ class "meta" ] [ text timer.project ]
-            , div [ class "center aligned description" ] [ h2 [] [ text (toString timer.elapsed) ] ]
-            ]
-        , div [ class "extra content" ]
-            [ span [ class "right floated edit icon" ]
-                [ i [ class "edit icon" ] []
+    let
+        elapsedString =
+            renderElapsedString timer.elapsed timer.runningSince 12
+    in
+        div [ class "ui centered card" ]
+            [ div [ class "content" ]
+                [ div [ class "header" ] [ text timer.title ]
+                , div [ class "meta" ] [ text timer.project ]
+                , div [ class "center aligned description" ] [ h2 [] [ text elapsedString ] ]
                 ]
-            , span [ class "right floated trash icon" ]
-                [ i [ class "trash icon" ] []
+            , div [ class "extra content" ]
+                [ span [ class "right floated edit icon" ]
+                    [ i [ class "edit icon" ] []
+                    ]
+                , span [ class "right floated trash icon" ]
+                    [ i [ class "trash icon" ] []
+                    ]
                 ]
+            , div [ class "ui bottom attached blue basic button" ] [ text "Start" ]
             ]
-        , div [ class "ui bottom attached blue basic button" ] [ text "Start" ]
-        ]
 
 
 toggleableTimerForm : Bool -> Html Msg
