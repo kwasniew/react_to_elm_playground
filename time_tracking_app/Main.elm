@@ -3,12 +3,12 @@ module Main exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Helpers exposing (renderElapsedString)
-import Time exposing (..)
+import Time exposing (Time, second)
 
 
 type alias Model =
     { timers : List Timer
-    , currentTime : Maybe Time
+    , currentTime : Time
     }
 
 
@@ -29,7 +29,7 @@ type alias TimerForm =
 
 
 type Msg
-    = NoOp
+    = Tick Time
 
 
 init : ( Model, Cmd Msg )
@@ -38,7 +38,7 @@ init =
             [ { title = "Learn Elm", project = "Web Domination", elapsed = 8986300, runningSince = Nothing, editFormOpen = False }
             , { title = "Learn extreme ironing", project = "World Domination", elapsed = 3890985, runningSince = Nothing, editFormOpen = True }
             ]
-      , currentTime = Nothing
+      , currentTime = 0
       }
     , Cmd.none
     )
@@ -53,24 +53,24 @@ timersDashboard : Model -> Html Msg
 timersDashboard model =
     div [ class "ui three column centered grid" ]
         [ div [ class "column" ]
-            [ editableTimerList model.timers
+            [ editableTimerList model.timers model.currentTime
             , toggleableTimerForm True
             ]
         ]
 
 
-editableTimerList : List Timer -> Html Msg
-editableTimerList timers =
+editableTimerList : List Timer -> Time -> Html Msg
+editableTimerList timers currentTime =
     div [ id "timers" ]
-        (List.map editableTimer timers)
+        (List.map (editableTimer currentTime) timers)
 
 
-editableTimer : Timer -> Html Msg
-editableTimer timer =
+editableTimer : Time -> Timer -> Html Msg
+editableTimer currentTime timer =
     if timer.editFormOpen then
         timerForm (Just timer)
     else
-        timerView timer
+        timerView timer currentTime
 
 
 timerForm : Maybe Timer -> Html Msg
@@ -107,11 +107,11 @@ timerForm maybeTimer =
             ]
 
 
-timerView : Timer -> Html Msg
-timerView timer =
+timerView : Timer -> Time -> Html Msg
+timerView timer currentTime =
     let
         elapsedString =
-            renderElapsedString timer.elapsed timer.runningSince 12
+            renderElapsedString timer.elapsed timer.runningSince currentTime
     in
         div [ class "ui centered card" ]
             [ div [ class "content" ]
@@ -141,10 +141,17 @@ toggleableTimerForm isOpen =
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    ( model, Cmd.none )
+    case msg of
+        Tick time ->
+            ( { model | currentTime = time }, Cmd.none )
+
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    Time.every Time.second Tick
 
 
 main : Program Never Model Msg
 main =
     Html.program
-        { view = view, init = init, update = update, subscriptions = (\_ -> Sub.none) }
+        { view = view, init = init, update = update, subscriptions = subscriptions }
