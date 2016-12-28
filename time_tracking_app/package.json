@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "author": "Fullstack.io",
   "scripts": {
-    "go": "open http://localhost:3000; npm run server",
+    "go": "open http://localhost:3000; npm run start",
     "server": "node server.js",
-    "start": "npm run server"
+    "start": "npm run elm && npm run server",
+    "elm": "elm-make Main.elm --output=public/elm.js"
   },
   "private": true,
   "dependencies": {

@@ -1,8 +1,6 @@
 ### Running the app
 
-1. Ensure you have `npm` installed.
-
-Follow the instructions for your platform [here](https://github.com/npm/npm).
+1. Ensure you have `npm` and `elm-make` installed.
 
 2. Install all dependencies:
 
