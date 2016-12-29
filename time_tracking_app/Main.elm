@@ -155,6 +155,14 @@ toggleableTimerForm isOpen =
             ]
 
 
+closeForm : String -> Timer -> Timer
+closeForm id timer =
+    if timer.id == id then
+        { timer | editFormOpen = False }
+    else
+        timer
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
@@ -168,7 +176,7 @@ update msg model =
             ( model, Cmd.none )
 
         Close (Just id) ->
-            ( model, Cmd.none )
+            ( { model | timers = List.map (closeForm id) model.timers }, Cmd.none )
 
         Close Nothing ->
             ( { model | formOpen = False }, Cmd.none )
