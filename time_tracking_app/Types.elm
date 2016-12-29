@@ -54,3 +54,4 @@ type Msg
     | Stop Uuid
     | FetchAll Time
     | Fetched (Result Http.Error (List Timer))
+    | Posted (Result Http.Error String)

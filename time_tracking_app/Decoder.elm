@@ -32,3 +32,8 @@ timerDecoder =
         |> custom ((maybe (field "runningSince" float)))
         |> hardcoded False
         |> custom ((field "id" string) |> andThen decodeUuid)
+
+
+noOp : Decoder String
+noOp =
+    succeed "done"

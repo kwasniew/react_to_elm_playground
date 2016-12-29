@@ -9,7 +9,8 @@ import Uuid exposing (Uuid, uuidGenerator, fromString)
 import Random.Pcg exposing (Seed, initialSeed, step)
 import Http
 import Types exposing (..)
-import Decoder exposing (timersDecoder)
+import Decoder exposing (timersDecoder, noOp)
+import Encoder exposing (..)
 
 
 init : Flags -> ( Model, Cmd Msg )
@@ -253,7 +254,16 @@ update msg model =
             ( { model | timers = List.filter (\t -> t.id /= id) model.timers }, Cmd.none )
 
         Start id ->
-            ( { model | timers = List.map (startTimer id model.currentTime) model.timers }, Cmd.none )
+            ( { model | timers = List.map (startTimer id model.currentTime) model.timers }
+            , Http.send Posted <|
+                Http.post
+                    "/api/timers/start"
+                    (Http.stringBody
+                        "application/json"
+                        (Encoder.startTimer id model.currentTime)
+                    )
+                    noOp
+            )
 
         Stop id ->
             ( { model | timers = List.map (stopTimer id model.currentTime) model.timers }, Cmd.none )
@@ -272,6 +282,9 @@ update msg model =
                             Debug.log "err" err
                     in
                         ( model, Cmd.none )
+
+        Posted _ ->
+            ( model, Cmd.none )
 
 
 subscriptions : Model -> Sub Msg
