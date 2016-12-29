@@ -236,6 +236,11 @@ editProject id project timer =
     forMatchingId id timer { timer | project = project }
 
 
+startTimer : Uuid -> Time -> Timer -> Timer
+startTimer id now timer =
+    forMatchingId id timer { timer | runningSince = Just now }
+
+
 forMatchingId : Uuid -> Timer -> (Timer -> Timer)
 forMatchingId id timer update =
     if timer.id == id then
@@ -315,7 +320,7 @@ update msg model =
             ( { model | timers = List.filter (\t -> t.id /= id) model.timers }, Cmd.none )
 
         Start id ->
-            ( model, Cmd.none )
+            ( { model | timers = List.map (startTimer id model.currentTime) model.timers }, Cmd.none )
 
         Stop id ->
             ( model, Cmd.none )
