@@ -5,6 +5,8 @@ import Html.Attributes exposing (..)
 import Helpers exposing (renderElapsedString)
 import Time exposing (Time, second)
 import Html.Events exposing (..)
+import Uuid exposing (Uuid, uuidGenerator, fromString)
+import Random.Pcg exposing (Seed, initialSeed, step)
 
 
 type alias Model =
@@ -13,11 +15,13 @@ type alias Model =
     , formOpen : Bool
     , title : String
     , project : String
+    , currentSeed : Seed
+    , currentUuid : Maybe Uuid
     }
 
 
 type alias Flags =
-    { now : Time }
+    { now : Time, seed : Int }
 
 
 type alias Timer =
@@ -26,7 +30,7 @@ type alias Timer =
     , elapsed : Time
     , runningSince : Maybe Time
     , editFormOpen : Bool
-    , id : String
+    , id : Uuid
     }
 
 
@@ -34,29 +38,45 @@ type alias TimerForm =
     { title : String
     , project : String
     , submitText : String
-    , id : Maybe String
+    , id : Maybe Uuid
     }
 
 
 type Msg
     = Tick Time
     | OpenForm
-    | Submit (Maybe String)
-    | Close (Maybe String)
-    | Title (Maybe String) String
-    | Project (Maybe String) String
+    | Submit (Maybe Uuid)
+    | Close (Maybe Uuid)
+    | Title (Maybe Uuid) String
+    | Project (Maybe Uuid) String
+
+
+initTimers : List Timer
+initTimers =
+    let
+        ids =
+            [ fromString "63B9AAA2-6AAF-473E-B37E-22EB66E66B76", fromString "63B9AAA2-6AAF-473E-B37E-22EB66E66B77" ]
+    in
+        case ids of
+            [ Just uuid1, Just uuid2 ] ->
+                [ { title = "Learn Elm", project = "Web Domination", elapsed = 8986300, runningSince = Nothing, editFormOpen = False, id = uuid1 }
+                , { title = "Learn extreme ironing", project = "World Domination", elapsed = 3890985, runningSince = Nothing, editFormOpen = True, id = uuid2 }
+                ]
+
+            _ ->
+                []
 
 
 init : Flags -> ( Model, Cmd Msg )
 init flags =
     ( { timers =
-            [ { title = "Learn Elm", project = "Web Domination", elapsed = 8986300, runningSince = Nothing, editFormOpen = False, id = "1" }
-            , { title = "Learn extreme ironing", project = "World Domination", elapsed = 3890985, runningSince = Nothing, editFormOpen = True, id = "2" }
-            ]
+            initTimers
       , currentTime = flags.now
       , formOpen = False
       , title = ""
       , project = ""
+      , currentSeed = initialSeed flags.seed
+      , currentUuid = Nothing
       }
     , Cmd.none
     )
@@ -161,7 +181,7 @@ toggleableTimerForm isOpen =
             ]
 
 
-closeForm : String -> Timer -> Timer
+closeForm : Uuid -> Timer -> Timer
 closeForm id timer =
     if timer.id == id then
         { timer | editFormOpen = False }
@@ -169,14 +189,14 @@ closeForm id timer =
         timer
 
 
-newTimer : Model -> Timer
-newTimer model =
-    { title = model.title, project = model.project, elapsed = 0, runningSince = Nothing, editFormOpen = False, id = "3" }
+newTimer : Model -> Uuid -> Timer
+newTimer model newUuid =
+    { title = model.title, project = model.project, elapsed = 0, runningSince = Nothing, editFormOpen = False, id = newUuid }
 
 
-addTimer : Model -> List Timer
-addTimer model =
-    List.append model.timers [ newTimer model ]
+addTimer : Model -> Uuid -> List Timer
+addTimer model newUuid =
+    List.append model.timers [ newTimer model newUuid ]
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -189,7 +209,20 @@ update msg model =
             ( { model | formOpen = True }, Cmd.none )
 
         Submit Nothing ->
-            ( { model | timers = addTimer model, title = "", project = "", formOpen = False }, Cmd.none )
+            let
+                ( newUuid, newSeed ) =
+                    Random.Pcg.step uuidGenerator model.currentSeed
+            in
+                ( { model
+                    | currentUuid = Just newUuid
+                    , currentSeed = newSeed
+                    , timers = addTimer model newUuid
+                    , title = ""
+                    , project = ""
+                    , formOpen = False
+                  }
+                , Cmd.none
+                )
 
         Submit (Just id) ->
             ( model, Cmd.none )
