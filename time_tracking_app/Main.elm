@@ -201,14 +201,26 @@ addTimer model newUuid =
     List.append model.timers [ newTimer model newUuid ]
 
 
-startTimerRequest : Uuid -> Time -> Cmd Msg
-startTimerRequest id now =
+startTimerCommand : Uuid -> Time -> Cmd Msg
+startTimerCommand id now =
     Http.send Posted <|
         Http.post
             "/api/timers/start"
             (Http.stringBody
                 "application/json"
                 (Encoder.startTimer id now)
+            )
+            noOp
+
+
+stopTimerCommand : Uuid -> Time -> Cmd Msg
+stopTimerCommand id now =
+    Http.send Posted <|
+        Http.post
+            "/api/timers/stop"
+            (Http.stringBody
+                "application/json"
+                (Encoder.stopTimer id now)
             )
             noOp
 
@@ -267,11 +279,13 @@ update msg model =
 
         Start id ->
             ( { model | timers = List.map (startTimer id model.currentTime) model.timers }
-            , startTimerRequest id model.currentTime
+            , startTimerCommand id model.currentTime
             )
 
         Stop id ->
-            ( { model | timers = List.map (stopTimer id model.currentTime) model.timers }, Cmd.none )
+            ( { model | timers = List.map (stopTimer id model.currentTime) model.timers }
+            , stopTimerCommand id model.currentTime
+            )
 
         FetchAll _ ->
             ( model, Http.send Fetched <| Http.get "/api/timers" timersDecoder )

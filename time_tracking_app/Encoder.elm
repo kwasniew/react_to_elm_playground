@@ -12,3 +12,12 @@ startTimer id now =
         , ( "start", float now )
         ]
         |> encode 4
+
+
+stopTimer : Uuid -> Time -> String
+stopTimer id now =
+    object
+        [ ( "id", string (Uuid.toString id) )
+        , ( "stop", float now )
+        ]
+        |> encode 4
