@@ -52,6 +52,7 @@ type Msg
     | Title (Maybe Uuid) String
     | Project (Maybe Uuid) String
     | Edit Uuid
+    | Delete Uuid
 
 
 initTimers : List Timer
@@ -180,7 +181,7 @@ timerView timer currentTime =
                 [ span [ class "right floated edit icon", onClick (Edit timer.id) ]
                     [ i [ class "edit icon" ] []
                     ]
-                , span [ class "right floated trash icon" ]
+                , span [ class "right floated trash icon", onClick (Delete timer.id) ]
                     [ i [ class "trash icon" ] []
                     ]
                 ]
@@ -299,6 +300,9 @@ update msg model =
 
         Project Nothing project ->
             ( { model | project = project }, Cmd.none )
+
+        Delete id ->
+            ( { model | timers = List.filter (\t -> t.id /= id) model.timers }, Cmd.none )
 
 
 subscriptions : Model -> Sub Msg
