@@ -27,6 +27,8 @@ type alias Flags =
 type alias Timer =
     { title : String
     , project : String
+    , prevTitle : String
+    , prevProject : String
     , elapsed : Time
     , runningSince : Maybe Time
     , editFormOpen : Bool
@@ -60,8 +62,24 @@ initTimers =
     in
         case ids of
             [ Just uuid1, Just uuid2 ] ->
-                [ { title = "Learn Elm", project = "Web Domination", elapsed = 8986300, runningSince = Nothing, editFormOpen = False, id = uuid1 }
-                , { title = "Learn extreme ironing", project = "World Domination", elapsed = 3890985, runningSince = Nothing, editFormOpen = True, id = uuid2 }
+                [ { title = "Learn Elm"
+                  , project = "Web Domination"
+                  , prevTitle = "Learn Elm"
+                  , prevProject = "Web Domination"
+                  , elapsed = 8986300
+                  , runningSince = Nothing
+                  , editFormOpen = False
+                  , id = uuid1
+                  }
+                , { title = "Learn extreme ironing"
+                  , project = "World Domination"
+                  , prevTitle = "Learn extreme ironing"
+                  , prevProject = "World Domination"
+                  , elapsed = 3890985
+                  , runningSince = Nothing
+                  , editFormOpen = True
+                  , id = uuid2
+                  }
                 ]
 
             _ ->
@@ -182,10 +200,18 @@ toggleableTimerForm isOpen =
             ]
 
 
-closeForm : Uuid -> Timer -> Timer
-closeForm id timer =
+cancelForm : Uuid -> Timer -> Timer
+cancelForm id timer =
     if timer.id == id then
-        { timer | editFormOpen = False }
+        { timer | editFormOpen = False, title = timer.prevTitle, project = timer.prevProject }
+    else
+        timer
+
+
+saveForm : Uuid -> Timer -> Timer
+saveForm id timer =
+    if timer.id == id then
+        { timer | editFormOpen = False, prevTitle = timer.title, prevProject = timer.project }
     else
         timer
 
@@ -198,9 +224,33 @@ openForm id timer =
         timer
 
 
+editTitle : Uuid -> String -> Timer -> Timer
+editTitle id title timer =
+    if timer.id == id then
+        { timer | title = title }
+    else
+        timer
+
+
+editProject : Uuid -> String -> Timer -> Timer
+editProject id project timer =
+    if timer.id == id then
+        { timer | project = project }
+    else
+        timer
+
+
 newTimer : Model -> Uuid -> Timer
 newTimer model newUuid =
-    { title = model.title, project = model.project, elapsed = 0, runningSince = Nothing, editFormOpen = False, id = newUuid }
+    { title = model.title
+    , prevTitle = model.title
+    , project = model.project
+    , prevProject = model.project
+    , elapsed = 0
+    , runningSince = Nothing
+    , editFormOpen = False
+    , id = newUuid
+    }
 
 
 addTimer : Model -> Uuid -> List Timer
@@ -234,10 +284,10 @@ update msg model =
                 )
 
         Submit (Just id) ->
-            ( model, Cmd.none )
+            ( { model | timers = List.map (saveForm id) model.timers }, Cmd.none )
 
         Close (Just id) ->
-            ( { model | timers = List.map (closeForm id) model.timers }, Cmd.none )
+            ( { model | timers = List.map (cancelForm id) model.timers }, Cmd.none )
 
         Close Nothing ->
             ( { model | formOpen = False }, Cmd.none )
@@ -246,16 +296,16 @@ update msg model =
             ( { model | timers = List.map (openForm id) model.timers }, Cmd.none )
 
         Title (Just id) title ->
-            ( model, Cmd.none )
+            ( { model | timers = List.map (editTitle id title) model.timers }, Cmd.none )
 
         Title Nothing title ->
             ( { model | title = title }, Cmd.none )
 
+        Project (Just id) project ->
+            ( { model | timers = List.map (editProject id project) model.timers }, Cmd.none )
+
         Project Nothing project ->
             ( { model | project = project }, Cmd.none )
-
-        Project (Just id) project ->
-            ( model, Cmd.none )
 
 
 subscriptions : Model -> Sub Msg
