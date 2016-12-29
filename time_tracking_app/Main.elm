@@ -196,9 +196,9 @@ newTimer model newUuid =
     }
 
 
-addTimer : Model -> Uuid -> List Timer
-addTimer model newUuid =
-    List.append model.timers [ newTimer model newUuid ]
+addTimer : List Timer -> Timer -> List Timer
+addTimer timers timer =
+    List.append timers [ timer ]
 
 
 startTimerCommand : Uuid -> Time -> Cmd Msg
@@ -225,6 +225,18 @@ stopTimerCommand id now =
             noOp
 
 
+createTimerCommand : Timer -> Cmd Msg
+createTimerCommand timer =
+    Http.send Posted <|
+        Http.post
+            "/api/timers"
+            (Http.stringBody
+                "application/json"
+                (Encoder.newTimer timer)
+            )
+            noOp
+
+
 fetchAllCommand : Cmd Msg
 fetchAllCommand =
     Http.send Fetched <| Http.get "/api/timers" timersDecoder
@@ -243,16 +255,19 @@ update msg model =
             let
                 ( newUuid, newSeed ) =
                     Random.Pcg.step uuidGenerator model.currentSeed
+
+                timer =
+                    newTimer model newUuid
             in
                 ( { model
                     | currentUuid = Just newUuid
                     , currentSeed = newSeed
-                    , timers = addTimer model newUuid
+                    , timers = addTimer model.timers timer
                     , title = ""
                     , project = ""
                     , formOpen = False
                   }
-                , Cmd.none
+                , createTimerCommand timer
                 )
 
         Submit (Just id) ->
@@ -302,7 +317,7 @@ update msg model =
 
                 Result.Err err ->
                     let
-                        x =
+                        _ =
                             Debug.log "err" err
                     in
                         ( model, Cmd.none )

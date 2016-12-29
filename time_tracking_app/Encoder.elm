@@ -3,6 +3,7 @@ module Encoder exposing (..)
 import Json.Encode exposing (..)
 import Uuid exposing (..)
 import Time exposing (..)
+import Types exposing (..)
 
 
 startTimer : Uuid -> Time -> String
@@ -19,5 +20,16 @@ stopTimer id now =
     object
         [ ( "id", string (Uuid.toString id) )
         , ( "stop", float now )
+        ]
+        |> encode 4
+
+
+newTimer : Timer -> String
+newTimer timer =
+    object
+        [ ( "title", string timer.title )
+        , ( "project", string timer.project )
+        , ( "id", string (Uuid.toString timer.id) )
+        , ( "elapsed", float timer.elapsed )
         ]
         |> encode 4
