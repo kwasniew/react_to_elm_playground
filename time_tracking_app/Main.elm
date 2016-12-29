@@ -4,11 +4,13 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Helpers exposing (renderElapsedString)
 import Time exposing (Time, second)
+import Html.Events exposing (..)
 
 
 type alias Model =
     { timers : List Timer
     , currentTime : Time
+    , formOpen : Bool
     }
 
 
@@ -34,6 +36,7 @@ type alias TimerForm =
 
 type Msg
     = Tick Time
+    | OpenForm
 
 
 init : Flags -> ( Model, Cmd Msg )
@@ -43,6 +46,7 @@ init flags =
             , { title = "Learn extreme ironing", project = "World Domination", elapsed = 3890985, runningSince = Nothing, editFormOpen = True }
             ]
       , currentTime = flags.now
+      , formOpen = False
       }
     , Cmd.none
     )
@@ -58,7 +62,7 @@ timersDashboard model =
     div [ class "ui three column centered grid" ]
         [ div [ class "column" ]
             [ editableTimerList model.timers model.currentTime
-            , toggleableTimerForm True
+            , toggleableTimerForm model.formOpen
             ]
         ]
 
@@ -140,7 +144,11 @@ toggleableTimerForm isOpen =
     if isOpen then
         timerForm Nothing
     else
-        div [] []
+        div [ class "ui basic content center aligned segment" ]
+            [ button [ class "ui basic button icon", onClick OpenForm ]
+                [ i [ class "plus icon" ] []
+                ]
+            ]
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -148,6 +156,9 @@ update msg model =
     case msg of
         Tick time ->
             ( { model | currentTime = time }, Cmd.none )
+
+        OpenForm ->
+            ( { model | formOpen = True }, Cmd.none )
 
 
 subscriptions : Model -> Sub Msg
