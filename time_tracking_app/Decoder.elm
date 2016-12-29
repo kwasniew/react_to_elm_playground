@@ -1,7 +1,7 @@
 module Decoder exposing (..)
 
-import Json.Decode exposing (string, int, list, float, maybe, Decoder, decodeString, oneOf, map, field, fail, succeed, andThen)
-import Json.Decode.Pipeline exposing (required, decode, hardcoded, optional, custom)
+import Json.Decode exposing (string, list, float, maybe, Decoder, map, field, fail, succeed, andThen)
+import Json.Decode.Pipeline exposing (required, decode, hardcoded, custom)
 import Types exposing (..)
 import Uuid exposing (fromString, Uuid)
 

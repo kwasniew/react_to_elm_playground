@@ -12,42 +12,10 @@ import Types exposing (..)
 import Decoder exposing (timersDecoder)
 
 
-initTimers : List Timer
-initTimers =
-    let
-        ids =
-            [ fromString "63B9AAA2-6AAF-473E-B37E-22EB66E66B76", fromString "63B9AAA2-6AAF-473E-B37E-22EB66E66B77" ]
-    in
-        case ids of
-            [ Just uuid1, Just uuid2 ] ->
-                [ { title = "Learn Elm"
-                  , project = "Web Domination"
-                  , prevTitle = "Learn Elm"
-                  , prevProject = "Web Domination"
-                  , elapsed = 8986300
-                  , runningSince = Nothing
-                  , editFormOpen = False
-                  , id = uuid1
-                  }
-                , { title = "Learn extreme ironing"
-                  , project = "World Domination"
-                  , prevTitle = "Learn extreme ironing"
-                  , prevProject = "World Domination"
-                  , elapsed = 3890985
-                  , runningSince = Nothing
-                  , editFormOpen = True
-                  , id = uuid2
-                  }
-                ]
-
-            _ ->
-                []
-
-
 init : Flags -> ( Model, Cmd Msg )
 init flags =
     ( { timers =
-            initTimers
+            []
       , currentTime = flags.now
       , formOpen = False
       , title = ""
