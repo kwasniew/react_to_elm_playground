@@ -328,7 +328,7 @@ update msg model =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Time.every Time.second Tick
+    Time.every 50 Tick
 
 
 main : Program Flags Model Msg
