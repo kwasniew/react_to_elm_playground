@@ -201,6 +201,18 @@ addTimer model newUuid =
     List.append model.timers [ newTimer model newUuid ]
 
 
+startTimerRequest : Uuid -> Time -> Cmd Msg
+startTimerRequest id now =
+    Http.send Posted <|
+        Http.post
+            "/api/timers/start"
+            (Http.stringBody
+                "application/json"
+                (Encoder.startTimer id now)
+            )
+            noOp
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
@@ -255,14 +267,7 @@ update msg model =
 
         Start id ->
             ( { model | timers = List.map (startTimer id model.currentTime) model.timers }
-            , Http.send Posted <|
-                Http.post
-                    "/api/timers/start"
-                    (Http.stringBody
-                        "application/json"
-                        (Encoder.startTimer id model.currentTime)
-                    )
-                    noOp
+            , startTimerRequest id model.currentTime
             )
 
         Stop id ->
