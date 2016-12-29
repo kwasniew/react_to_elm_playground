@@ -49,6 +49,7 @@ type Msg
     | Close (Maybe Uuid)
     | Title (Maybe Uuid) String
     | Project (Maybe Uuid) String
+    | Edit Uuid
 
 
 initTimers : List Timer
@@ -158,7 +159,7 @@ timerView timer currentTime =
                 , div [ class "center aligned description" ] [ h2 [] [ text elapsedString ] ]
                 ]
             , div [ class "extra content" ]
-                [ span [ class "right floated edit icon" ]
+                [ span [ class "right floated edit icon", onClick (Edit timer.id) ]
                     [ i [ class "edit icon" ] []
                     ]
                 , span [ class "right floated trash icon" ]
@@ -185,6 +186,14 @@ closeForm : Uuid -> Timer -> Timer
 closeForm id timer =
     if timer.id == id then
         { timer | editFormOpen = False }
+    else
+        timer
+
+
+openForm : Uuid -> Timer -> Timer
+openForm id timer =
+    if timer.id == id then
+        { timer | editFormOpen = True }
     else
         timer
 
@@ -232,6 +241,9 @@ update msg model =
 
         Close Nothing ->
             ( { model | formOpen = False }, Cmd.none )
+
+        Edit id ->
+            ( { model | timers = List.map (openForm id) model.timers }, Cmd.none )
 
         Title (Just id) title ->
             ( model, Cmd.none )
