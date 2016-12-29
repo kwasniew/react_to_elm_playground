@@ -24,6 +24,7 @@ type alias Timer =
     , elapsed : Time
     , runningSince : Maybe Time
     , editFormOpen : Bool
+    , id : String
     }
 
 
@@ -31,19 +32,22 @@ type alias TimerForm =
     { title : String
     , project : String
     , submitText : String
+    , id : Maybe String
     }
 
 
 type Msg
     = Tick Time
     | OpenForm
+    | Submit (Maybe String)
+    | Close (Maybe String)
 
 
 init : Flags -> ( Model, Cmd Msg )
 init flags =
     ( { timers =
-            [ { title = "Learn Elm", project = "Web Domination", elapsed = 8986300, runningSince = Nothing, editFormOpen = False }
-            , { title = "Learn extreme ironing", project = "World Domination", elapsed = 3890985, runningSince = Nothing, editFormOpen = True }
+            [ { title = "Learn Elm", project = "Web Domination", elapsed = 8986300, runningSince = Nothing, editFormOpen = False, id = "1" }
+            , { title = "Learn extreme ironing", project = "World Domination", elapsed = 3890985, runningSince = Nothing, editFormOpen = True, id = "2" }
             ]
       , currentTime = flags.now
       , formOpen = False
@@ -88,10 +92,10 @@ timerForm maybeTimer =
         timerForm =
             case maybeTimer of
                 Just timer ->
-                    { title = timer.title, project = timer.project, submitText = "Update" }
+                    { title = timer.title, project = timer.project, submitText = "Update", id = Just timer.id }
 
                 Nothing ->
-                    { title = "", project = "", submitText = "Create" }
+                    { title = "", project = "", submitText = "Create", id = Nothing }
     in
         div [ class "ui centered card" ]
             [ div [ class "content" ]
@@ -107,8 +111,8 @@ timerForm maybeTimer =
                         , input [ type_ "text", defaultValue timerForm.project ] []
                         ]
                     , div [ class "ui two bottom attached buttons" ]
-                        [ button [ class "ui basic blue button" ] [ text timerForm.submitText ]
-                        , button [ class "ui basic red button" ] [ text "Cancel" ]
+                        [ button [ class "ui basic blue button", onClick (Submit timerForm.id) ] [ text timerForm.submitText ]
+                        , button [ class "ui basic red button", onClick (Close timerForm.id) ] [ text "Cancel" ]
                         ]
                     ]
                 ]
@@ -159,6 +163,15 @@ update msg model =
 
         OpenForm ->
             ( { model | formOpen = True }, Cmd.none )
+
+        Submit maybeId ->
+            ( model, Cmd.none )
+
+        Close (Just id) ->
+            ( model, Cmd.none )
+
+        Close Nothing ->
+            ( { model | formOpen = False }, Cmd.none )
 
 
 subscriptions : Model -> Sub Msg
