@@ -1,6 +1,8 @@
-module Helpers exposing (..)
+module Helpers exposing (millisecondsToHuman, findById, renderElapsedString)
 
 import Time exposing (..)
+import Uuid exposing (..)
+import Types exposing (..)
 
 
 renderElapsedString : Time -> Maybe Time -> Time -> String
@@ -34,4 +36,9 @@ millisecondsToHuman ms =
 
 pad : Int -> String
 pad i =
-    String.padLeft 2 '0' (toString i)
+    String.padLeft 2 '0' (Basics.toString i)
+
+
+findById : List Timer -> Uuid -> Maybe Timer
+findById timers id =
+    List.filter (\t -> t.id == id) timers |> List.head
