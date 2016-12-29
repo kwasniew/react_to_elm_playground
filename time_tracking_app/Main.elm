@@ -202,40 +202,33 @@ toggleableTimerForm isOpen =
 
 cancelForm : Uuid -> Timer -> Timer
 cancelForm id timer =
-    if timer.id == id then
-        { timer | editFormOpen = False, title = timer.prevTitle, project = timer.prevProject }
-    else
-        timer
+    forMatchingId id timer { timer | editFormOpen = False, title = timer.prevTitle, project = timer.prevProject }
 
 
 saveForm : Uuid -> Timer -> Timer
 saveForm id timer =
-    if timer.id == id then
-        { timer | editFormOpen = False, prevTitle = timer.title, prevProject = timer.project }
-    else
-        timer
+    forMatchingId id timer { timer | editFormOpen = False, prevTitle = timer.title, prevProject = timer.project }
 
 
 openForm : Uuid -> Timer -> Timer
 openForm id timer =
-    if timer.id == id then
-        { timer | editFormOpen = True }
-    else
-        timer
+    forMatchingId id timer { timer | editFormOpen = True }
 
 
 editTitle : Uuid -> String -> Timer -> Timer
 editTitle id title timer =
-    if timer.id == id then
-        { timer | title = title }
-    else
-        timer
+    forMatchingId id timer { timer | title = title }
 
 
 editProject : Uuid -> String -> Timer -> Timer
 editProject id project timer =
+    forMatchingId id timer { timer | project = project }
+
+
+forMatchingId : Uuid -> Timer -> (Timer -> Timer)
+forMatchingId id timer update =
     if timer.id == id then
-        { timer | project = project }
+        update
     else
         timer
 
