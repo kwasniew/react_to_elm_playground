@@ -7,54 +7,9 @@ import Time exposing (Time, second)
 import Html.Events exposing (..)
 import Uuid exposing (Uuid, uuidGenerator, fromString)
 import Random.Pcg exposing (Seed, initialSeed, step)
-
-
-type alias Model =
-    { timers : List Timer
-    , currentTime : Time
-    , formOpen : Bool
-    , title : String
-    , project : String
-    , currentSeed : Seed
-    , currentUuid : Maybe Uuid
-    }
-
-
-type alias Flags =
-    { now : Time, seed : Int }
-
-
-type alias Timer =
-    { title : String
-    , project : String
-    , prevTitle : String
-    , prevProject : String
-    , elapsed : Time
-    , runningSince : Maybe Time
-    , editFormOpen : Bool
-    , id : Uuid
-    }
-
-
-type alias TimerForm =
-    { title : String
-    , project : String
-    , submitText : String
-    , id : Maybe Uuid
-    }
-
-
-type Msg
-    = Tick Time
-    | OpenForm
-    | Submit (Maybe Uuid)
-    | Close (Maybe Uuid)
-    | Title (Maybe Uuid) String
-    | Project (Maybe Uuid) String
-    | Edit Uuid
-    | Delete Uuid
-    | Start Uuid
-    | Stop Uuid
+import Http
+import Types exposing (..)
+import Decoder exposing (timersDecoder)
 
 
 initTimers : List Timer
@@ -335,10 +290,25 @@ update msg model =
         Stop id ->
             ( { model | timers = List.map (stopTimer id model.currentTime) model.timers }, Cmd.none )
 
+        FetchAll _ ->
+            ( model, Http.send Fetched <| Http.get "/api/timers" timersDecoder )
+
+        Fetched response ->
+            case response of
+                Ok timers ->
+                    ( { model | timers = timers }, Cmd.none )
+
+                Result.Err err ->
+                    let
+                        x =
+                            Debug.log "err" err
+                    in
+                        ( model, Cmd.none )
+
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Time.every 50 Tick
+    Sub.batch [ (Time.every 50 Tick), (Time.every 5000 FetchAll) ]
 
 
 main : Program Flags Model Msg
