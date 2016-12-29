@@ -11,7 +11,7 @@ import Http
 import Types exposing (..)
 import Decoder exposing (timersDecoder, noOp)
 import Encoder exposing (..)
-import CustomHttp exposing (put)
+import CustomHttp exposing (put, delete)
 
 
 init : Flags -> ( Model, Cmd Msg )
@@ -260,6 +260,18 @@ updateTimerCommand timers id =
             Cmd.none
 
 
+deleteTimerCommand : Uuid -> Cmd Msg
+deleteTimerCommand id =
+    Http.send Posted <|
+        CustomHttp.delete
+            "/api/timers"
+            (Http.stringBody
+                "application/json"
+                (Encoder.delete id)
+            )
+            noOp
+
+
 fetchAllCommand : Cmd Msg
 fetchAllCommand =
     Http.send Fetched <| Http.get "/api/timers" timersDecoder
@@ -320,7 +332,9 @@ update msg model =
             ( { model | project = project }, Cmd.none )
 
         Delete id ->
-            ( { model | timers = List.filter (\t -> t.id /= id) model.timers }, Cmd.none )
+            ( { model | timers = List.filter (\t -> t.id /= id) model.timers }
+            , deleteTimerCommand id
+            )
 
         Start id ->
             ( { model | timers = List.map (startTimer id model.currentTime) model.timers }

@@ -33,3 +33,8 @@ timer timer =
         , ( "elapsed", float timer.elapsed )
         ]
         |> encode 4
+
+
+delete : Uuid -> String
+delete id =
+    object [ ( "id", string (Uuid.toString id) ) ] |> encode 4
