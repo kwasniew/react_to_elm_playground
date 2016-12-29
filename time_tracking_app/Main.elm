@@ -11,6 +11,8 @@ type alias Model =
     { timers : List Timer
     , currentTime : Time
     , formOpen : Bool
+    , title : String
+    , project : String
     }
 
 
@@ -41,6 +43,8 @@ type Msg
     | OpenForm
     | Submit (Maybe String)
     | Close (Maybe String)
+    | Title (Maybe String) String
+    | Project (Maybe String) String
 
 
 init : Flags -> ( Model, Cmd Msg )
@@ -51,6 +55,8 @@ init flags =
             ]
       , currentTime = flags.now
       , formOpen = False
+      , title = ""
+      , project = ""
       }
     , Cmd.none
     )
@@ -103,12 +109,12 @@ timerForm maybeTimer =
                     [ div [ class "field" ]
                         [ label []
                             [ text "Title"
-                            , input [ type_ "text", defaultValue timerForm.title ] []
+                            , input [ type_ "text", onInput (Title timerForm.id), defaultValue timerForm.title ] []
                             ]
                         ]
                     , div [ class "field" ]
                         [ label [] [ text "Project" ]
-                        , input [ type_ "text", defaultValue timerForm.project ] []
+                        , input [ type_ "text", onInput (Project timerForm.id), defaultValue timerForm.project ] []
                         ]
                     , div [ class "ui two bottom attached buttons" ]
                         [ button [ class "ui basic blue button", onClick (Submit timerForm.id) ] [ text timerForm.submitText ]
@@ -163,6 +169,16 @@ closeForm id timer =
         timer
 
 
+newTimer : Model -> Timer
+newTimer model =
+    { title = model.title, project = model.project, elapsed = 0, runningSince = Nothing, editFormOpen = False, id = "3" }
+
+
+addTimer : Model -> List Timer
+addTimer model =
+    List.append model.timers [ newTimer model ]
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
@@ -172,7 +188,10 @@ update msg model =
         OpenForm ->
             ( { model | formOpen = True }, Cmd.none )
 
-        Submit maybeId ->
+        Submit Nothing ->
+            ( { model | timers = addTimer model, title = "", project = "", formOpen = False }, Cmd.none )
+
+        Submit (Just id) ->
             ( model, Cmd.none )
 
         Close (Just id) ->
@@ -180,6 +199,18 @@ update msg model =
 
         Close Nothing ->
             ( { model | formOpen = False }, Cmd.none )
+
+        Title (Just id) title ->
+            ( model, Cmd.none )
+
+        Title Nothing title ->
+            ( { model | title = title }, Cmd.none )
+
+        Project Nothing project ->
+            ( { model | project = project }, Cmd.none )
+
+        Project (Just id) project ->
+            ( model, Cmd.none )
 
 
 subscriptions : Model -> Sub Msg
