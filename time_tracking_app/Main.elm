@@ -11,6 +11,7 @@ import Http
 import Types exposing (..)
 import Decoder exposing (timersDecoder, noOp)
 import Encoder exposing (..)
+import CustomHttp exposing (put)
 
 
 init : Flags -> ( Model, Cmd Msg )
@@ -196,6 +197,11 @@ newTimer model newUuid =
     }
 
 
+findById : List Timer -> Uuid -> Maybe Timer
+findById timers id =
+    List.filter (\t -> t.id == id) timers |> List.head
+
+
 addTimer : List Timer -> Timer -> List Timer
 addTimer timers timer =
     List.append timers [ timer ]
@@ -232,9 +238,26 @@ createTimerCommand timer =
             "/api/timers"
             (Http.stringBody
                 "application/json"
-                (Encoder.newTimer timer)
+                (Encoder.timer timer)
             )
             noOp
+
+
+updateTimerCommand : List Timer -> Uuid -> Cmd Msg
+updateTimerCommand timers id =
+    case findById timers id of
+        Just timer ->
+            Http.send Posted <|
+                CustomHttp.put
+                    "/api/timers"
+                    (Http.stringBody
+                        "application/json"
+                        (Encoder.timer timer)
+                    )
+                    noOp
+
+        Nothing ->
+            Cmd.none
 
 
 fetchAllCommand : Cmd Msg
@@ -271,7 +294,9 @@ update msg model =
                 )
 
         Submit (Just id) ->
-            ( { model | timers = List.map (saveForm id) model.timers }, Cmd.none )
+            ( { model | timers = List.map (saveForm id) model.timers }
+            , updateTimerCommand model.timers id
+            )
 
         Close (Just id) ->
             ( { model | timers = List.map (cancelForm id) model.timers }, Cmd.none )

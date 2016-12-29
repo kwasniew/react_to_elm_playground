@@ -24,8 +24,8 @@ stopTimer id now =
         |> encode 4
 
 
-newTimer : Timer -> String
-newTimer timer =
+timer : Timer -> String
+timer timer =
     object
         [ ( "title", string timer.title )
         , ( "project", string timer.project )
