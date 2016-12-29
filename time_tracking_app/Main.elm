@@ -24,7 +24,7 @@ init flags =
       , currentSeed = initialSeed flags.seed
       , currentUuid = Nothing
       }
-    , Cmd.none
+    , fetchAllCommand
     )
 
 
@@ -225,6 +225,11 @@ stopTimerCommand id now =
             noOp
 
 
+fetchAllCommand : Cmd Msg
+fetchAllCommand =
+    Http.send Fetched <| Http.get "/api/timers" timersDecoder
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
@@ -288,7 +293,7 @@ update msg model =
             )
 
         FetchAll _ ->
-            ( model, Http.send Fetched <| Http.get "/api/timers" timersDecoder )
+            ( model, fetchAllCommand )
 
         Fetched response ->
             case response of
