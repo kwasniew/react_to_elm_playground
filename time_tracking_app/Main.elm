@@ -241,6 +241,16 @@ startTimer id now timer =
     forMatchingId id timer { timer | runningSince = Just now }
 
 
+stopTimer : Uuid -> Time -> Timer -> Timer
+stopTimer id now timer =
+    forMatchingId id
+        timer
+        { timer
+            | runningSince = Nothing
+            , elapsed = timer.elapsed + now - (Maybe.withDefault 0 timer.runningSince)
+        }
+
+
 forMatchingId : Uuid -> Timer -> (Timer -> Timer)
 forMatchingId id timer update =
     if timer.id == id then
@@ -323,7 +333,7 @@ update msg model =
             ( { model | timers = List.map (startTimer id model.currentTime) model.timers }, Cmd.none )
 
         Stop id ->
-            ( model, Cmd.none )
+            ( { model | timers = List.map (stopTimer id model.currentTime) model.timers }, Cmd.none )
 
 
 subscriptions : Model -> Sub Msg
