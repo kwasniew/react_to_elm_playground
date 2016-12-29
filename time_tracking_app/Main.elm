@@ -53,6 +53,8 @@ type Msg
     | Project (Maybe Uuid) String
     | Edit Uuid
     | Delete Uuid
+    | Start Uuid
+    | Stop Uuid
 
 
 initTimers : List Timer
@@ -185,8 +187,16 @@ timerView timer currentTime =
                     [ i [ class "trash icon" ] []
                     ]
                 ]
-            , div [ class "ui bottom attached blue basic button" ] [ text "Start" ]
+            , timerActionButton timer
             ]
+
+
+timerActionButton : Timer -> Html Msg
+timerActionButton timer =
+    if timer.runningSince == Nothing then
+        div [ class "ui bottom attached green basic button", onClick (Start timer.id) ] [ text "Start" ]
+    else
+        div [ class "ui bottom attached red basic button", onClick (Stop timer.id) ] [ text "Stop" ]
 
 
 toggleableTimerForm : Bool -> Html Msg
@@ -303,6 +313,12 @@ update msg model =
 
         Delete id ->
             ( { model | timers = List.filter (\t -> t.id /= id) model.timers }, Cmd.none )
+
+        Start id ->
+            ( model, Cmd.none )
+
+        Stop id ->
+            ( model, Cmd.none )
 
 
 subscriptions : Model -> Sub Msg
