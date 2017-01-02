@@ -2,7 +2,7 @@ module Main exposing (..)
 
 import Html exposing (..)
 import Html.Events exposing (onSubmit, onInput)
-import Html.Attributes exposing (placeholder, type_, value, style)
+import Html.Attributes exposing (placeholder, type_, value, style, alt, src)
 import Regex
 
 
@@ -23,6 +23,7 @@ type alias Model =
     , fieldErrors : Maybe Errors
     , name : String
     , email : String
+    , isLoading : Bool
     }
 
 
@@ -38,6 +39,7 @@ init =
       , fieldErrors = Nothing
       , name = ""
       , email = ""
+      , isLoading = False
       }
     , Cmd.none
     )
@@ -59,31 +61,38 @@ errorField errors fieldFn =
 
 view : Model -> Html Msg
 view model =
-    div []
-        [ h1 []
-            [ text "Sign Up Sheet" ]
-        , form [ onSubmit Submit ]
-            [ input [ placeholder "Name", onInput CurrentName, value model.name ] []
-            , errorField model.fieldErrors .name
-            , br [] []
-            , input [ placeholder "Email", onInput CurrentEmail, value model.email ] []
-            , errorField model.fieldErrors .email
-            , br [] []
-            , input [ type_ "submit" ] []
-            ]
-        , div []
-            [ h3 [] [ text "names" ]
-            , ul []
-                (List.map
-                    (\field ->
-                        li []
-                            [ text (field.name ++ " (" ++ field.email ++ ")")
-                            ]
+    if model.isLoading then
+        img [ alt "loading", src "/img/loading.gif" ] []
+    else
+        div []
+            [ h1 []
+                [ text "Sign Up Sheet" ]
+            , form [ onSubmit Submit ]
+                [ div []
+                    [ input [ placeholder "Name", onInput CurrentName, value model.name ] []
+                    , errorField model.fieldErrors .name
+                    ]
+                , br [] []
+                , div []
+                    [ input [ placeholder "Email", onInput CurrentEmail, value model.email ] []
+                    , errorField model.fieldErrors .email
+                    ]
+                , br [] []
+                , input [ type_ "submit" ] []
+                ]
+            , div []
+                [ h3 [] [ text "People" ]
+                , ul []
+                    (List.map
+                        (\field ->
+                            li []
+                                [ text (field.name ++ " (" ++ field.email ++ ")")
+                                ]
+                        )
+                        model.fields
                     )
-                    model.fields
-                )
+                ]
             ]
-        ]
 
 
 isValidEmail : String -> Bool
