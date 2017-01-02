@@ -9,6 +9,7 @@ import Regex
 type alias Field =
     { name : String
     , email : String
+    , department : String
     }
 
 
@@ -23,6 +24,7 @@ type alias Model =
     , fieldErrors : Maybe Errors
     , name : String
     , email : String
+    , department : String
     , isLoading : Bool
     }
 
@@ -39,6 +41,7 @@ init =
       , fieldErrors = Nothing
       , name = ""
       , email = ""
+      , department = ""
       , isLoading = False
       }
     , Cmd.none
@@ -57,6 +60,20 @@ errorField errors fieldFn =
                     ""
     in
         span [ style [ ( "color", "red" ) ] ] [ text txt ]
+
+
+depertmentSelect : String -> Html Msg
+depertmentSelect department =
+    select [ value department ]
+        [ option [ value "" ] [ text "Which department?" ]
+        , option [ value "core" ] [ text "NodeSchool: Core" ]
+        , option [ value "electives" ] [ text "NodeSchool: Electives" ]
+        ]
+
+
+courseSelect : String -> Html Msg
+courseSelect department =
+    div [] [ depertmentSelect department ]
 
 
 view : Model -> Html Msg
@@ -78,6 +95,8 @@ view model =
                     , errorField model.fieldErrors .email
                     ]
                 , br [] []
+                , courseSelect model.department
+                , br [] []
                 , input [ type_ "submit" ] []
                 ]
             , div []
@@ -86,7 +105,7 @@ view model =
                     (List.map
                         (\field ->
                             li []
-                                [ text (field.name ++ " (" ++ field.email ++ ")")
+                                [ text (String.join " - " [ field.name, field.email, field.department ])
                                 ]
                         )
                         model.fields
@@ -142,7 +161,7 @@ update msg model =
                 case errors of
                     Nothing ->
                         ( { model
-                            | fields = List.append model.fields [ Field model.name model.email ]
+                            | fields = List.append model.fields [ Field model.name model.email model.department ]
                             , name = ""
                             , email = ""
                             , fieldErrors = Nothing
