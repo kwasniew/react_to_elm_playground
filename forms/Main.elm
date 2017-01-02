@@ -4,6 +4,11 @@ import Html exposing (..)
 import Html.Events exposing (onSubmit, onInput, on)
 import Html.Attributes exposing (placeholder, type_, value, style, alt, src, disabled)
 import Regex
+import Process
+import Task
+import Time
+import Api.Core
+import Api.Electives
 
 
 type alias Field =
@@ -20,6 +25,8 @@ type alias Model =
     , email : String
     , emailError : Maybe String
     , department : Maybe Department
+    , courses : List String
+    , courseLoading : Bool
     , isLoading : Bool
     }
 
@@ -34,6 +41,7 @@ type Msg
     | CurrentName String
     | CurrentEmail String
     | SetDepartment String
+    | Fetched (List String)
 
 
 init : ( Model, Cmd Msg )
@@ -44,6 +52,8 @@ init =
       , email = ""
       , emailError = Nothing
       , department = Nothing
+      , courses = []
+      , courseLoading = False
       , isLoading = False
       }
     , Cmd.none
@@ -64,8 +74,8 @@ errorField error =
         span [ style [ ( "color", "red" ) ] ] [ text txt ]
 
 
-depertmentSelect : Maybe Department -> Html Msg
-depertmentSelect department =
+departmentSelect : Maybe Department -> Html Msg
+departmentSelect department =
     let
         val =
             case department of
@@ -82,9 +92,20 @@ depertmentSelect department =
             ]
 
 
-courseSelect : Maybe Department -> Html Msg
-courseSelect department =
-    div [] [ depertmentSelect department ]
+courseSelect : Model -> Html Msg
+courseSelect model =
+    if model.courseLoading then
+        img [ alt "loading", src "/img/loading.gif" ] []
+    else if (List.length model.courses) == 0 then
+        span [] []
+    else
+        select []
+            ((option [ value "" ] [ text "Which course?" ])
+                :: (List.map
+                        (\course -> option [ value course ] [ text course ])
+                        model.courses
+                   )
+            )
 
 
 isInvalid : Model -> Bool
@@ -134,7 +155,11 @@ view model =
                     , errorField model.emailError
                     ]
                 , br [] []
-                , courseSelect model.department
+                , div []
+                    [ departmentSelect model.department
+                    , br [] []
+                    , courseSelect model
+                    ]
                 , br [] []
                 , input [ type_ "submit", disabled (isInvalid model) ] []
                 ]
@@ -176,6 +201,19 @@ stringToDepartment department =
             Nothing
 
 
+fetchCourses : Maybe Department -> Cmd Msg
+fetchCourses department =
+    case department of
+        Just Core ->
+            Process.sleep (1 * Time.second) |> Task.perform (\_ -> Fetched Api.Core.courses)
+
+        Just Electives ->
+            Process.sleep (1 * Time.second) |> Task.perform (\_ -> Fetched Api.Electives.courses)
+
+        Nothing ->
+            Cmd.none
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
@@ -200,7 +238,16 @@ update msg model =
             ( { model | email = txt, emailError = validateEmail txt }, Cmd.none )
 
         SetDepartment txt ->
-            ( { model | department = stringToDepartment txt }, Cmd.none )
+            let
+                department =
+                    stringToDepartment txt
+            in
+                ( { model | department = department, courseLoading = True }
+                , fetchCourses department
+                )
+
+        Fetched courses ->
+            ( { model | courses = courses, courseLoading = False }, Cmd.none )
 
 
 main : Program Never Model Msg
