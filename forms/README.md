@@ -21,3 +21,4 @@ The server is now running at [localhost:8000](localhost:8000)
 - use localStorage via ports until https://github.com/elm-lang/persistent-cache is ready
 - looks like Elm community discourages premature splitting of code and with an advanced compiler you can defer it
 - when writing a union type to model state transitions I find proper order makes it easier to reason about code (e.g. Ready -> Saving -> Success/Error)
+- I find Elm messages much more explicit than Redux mapDispatchToProps, mapStateToProps, applyMiddleware, JSX Provider etc.
