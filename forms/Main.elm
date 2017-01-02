@@ -1,4 +1,4 @@
-module Main exposing (..)
+port module Main exposing (..)
 
 import Html exposing (..)
 import Html.Events exposing (onSubmit, onInput, on)
@@ -14,7 +14,7 @@ import Api.Electives
 type alias Person =
     { name : String
     , email : String
-    , department : Department
+    , department : String
     , course : String
     }
 
@@ -25,18 +25,13 @@ type alias Model =
     , nameError : Maybe String
     , email : String
     , emailError : Maybe String
-    , department : Maybe Department
+    , department : String
     , courses : List String
     , courseLoading : Bool
     , course : String
     , isLoading : Bool
     , saveStatus : Status
     }
-
-
-type Department
-    = Core
-    | Electives
 
 
 type Status
@@ -62,7 +57,7 @@ init =
       , nameError = Nothing
       , email = ""
       , emailError = Nothing
-      , department = Nothing
+      , department = ""
       , courses = []
       , courseLoading = False
       , course = ""
@@ -87,22 +82,13 @@ errorField error =
         span [ style [ ( "color", "red" ) ] ] [ text txt ]
 
 
-departmentSelect : Maybe Department -> Html Msg
+departmentSelect : String -> Html Msg
 departmentSelect department =
-    let
-        val =
-            case department of
-                Just value ->
-                    String.toLower (toString value)
-
-                Nothing ->
-                    ""
-    in
-        select [ value val, onInput SelectDepartment ]
-            [ option [ value "" ] [ text "Which department?" ]
-            , option [ value "core" ] [ text "NodeSchool: Core" ]
-            , option [ value "electives" ] [ text "NodeSchool: Electives" ]
-            ]
+    select [ value department, onInput SelectDepartment ]
+        [ option [ value "" ] [ text "Which department?" ]
+        , option [ value "core" ] [ text "NodeSchool: Core" ]
+        , option [ value "electives" ] [ text "NodeSchool: Electives" ]
+        ]
 
 
 courseSelect : Model -> Html Msg
@@ -123,7 +109,7 @@ courseSelect model =
 
 isInvalid : Model -> Bool
 isInvalid model =
-    model.name == "" || model.department == Nothing || model.course == "" || (not (isValidEmail model.email))
+    model.name == "" || model.department == "" || model.course == "" || (not (isValidEmail model.email))
 
 
 validateEmail : String -> Maybe String
@@ -195,7 +181,7 @@ view model =
                                     (String.join " - "
                                         [ field.name
                                         , field.email
-                                        , (String.toLower (toString field.department))
+                                        , field.department
                                         , field.course
                                         ]
                                     )
@@ -217,29 +203,16 @@ isValidEmail =
         Regex.contains validEmail
 
 
-stringToDepartment : String -> Maybe Department
-stringToDepartment department =
-    case department of
-        "core" ->
-            Just Core
-
-        "electives" ->
-            Just Electives
-
-        _ ->
-            Nothing
-
-
-fetchCourses : Maybe Department -> Cmd Msg
+fetchCourses : String -> Cmd Msg
 fetchCourses department =
     case department of
-        Just Core ->
+        "core" ->
             Process.sleep (1 * Time.second) |> Task.perform (\_ -> Fetched Api.Core.courses)
 
-        Just Electives ->
+        "electives" ->
             Process.sleep (1 * Time.second) |> Task.perform (\_ -> Fetched Api.Electives.courses)
 
-        Nothing ->
+        _ ->
             Cmd.none
 
 
@@ -247,16 +220,11 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Submit ->
-            case model.department of
-                Just department ->
-                    ( { model
-                        | people = List.append model.people [ Person model.name model.email department model.course ]
-                      }
-                    , Cmd.none
-                    )
-
-                Nothing ->
-                    ( model, Cmd.none )
+            ( { model
+                | people = List.append model.people [ Person model.name model.email model.department model.course ]
+              }
+            , Cmd.none
+            )
 
         CurrentName txt ->
             ( { model | name = txt, nameError = validateName txt }, Cmd.none )
@@ -264,16 +232,13 @@ update msg model =
         CurrentEmail txt ->
             ( { model | email = txt, emailError = validateEmail txt }, Cmd.none )
 
-        SelectDepartment txt ->
+        SelectDepartment department ->
             let
-                department =
-                    stringToDepartment txt
-
                 courseLoading =
-                    department /= Nothing
+                    department /= ""
 
                 courses =
-                    if department == Nothing then
+                    if department == "" then
                         []
                     else
                         model.courses
@@ -287,6 +252,9 @@ update msg model =
 
         SelectCourse txt ->
             ( { model | course = txt }, Cmd.none )
+
+
+port savePeople : List Person -> Cmd msg
 
 
 main : Program Never Model Msg

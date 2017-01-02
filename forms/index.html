@@ -16,6 +16,9 @@
     <script src="./elm.js"></script>
     <script>
      var app = Elm.Main.fullscreen();
+     app.ports.savePeople.subscribe(function(people) {
+       localStorage.setItem("people", JSON.stringify(people));
+     });
    </script>
   </body>
 
