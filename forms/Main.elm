@@ -245,8 +245,17 @@ update msg model =
             let
                 department =
                     stringToDepartment txt
+
+                courseLoading =
+                    department /= Nothing
+
+                courses =
+                    if department == Nothing then
+                        []
+                    else
+                        model.courses
             in
-                ( { model | department = department, courseLoading = True }
+                ( { model | department = department, courses = courses, course = "", courseLoading = courseLoading }
                 , fetchCourses department
                 )
 
