@@ -27,6 +27,7 @@ type alias Model =
     , department : Maybe Department
     , courses : List String
     , courseLoading : Bool
+    , course : String
     , isLoading : Bool
     }
 
@@ -42,6 +43,7 @@ type Msg
     | CurrentEmail String
     | SetDepartment String
     | Fetched (List String)
+    | SetCourse String
 
 
 init : ( Model, Cmd Msg )
@@ -54,6 +56,7 @@ init =
       , department = Nothing
       , courses = []
       , courseLoading = False
+      , course = ""
       , isLoading = False
       }
     , Cmd.none
@@ -99,7 +102,7 @@ courseSelect model =
     else if (List.length model.courses) == 0 then
         span [] []
     else
-        select []
+        select [ value model.course, onInput SetCourse ]
             ((option [ value "" ] [ text "Which course?" ])
                 :: (List.map
                         (\course -> option [ value course ] [ text course ])
@@ -248,6 +251,9 @@ update msg model =
 
         Fetched courses ->
             ( { model | courses = courses, courseLoading = False }, Cmd.none )
+
+        SetCourse txt ->
+            ( { model | course = txt }, Cmd.none )
 
 
 main : Program Never Model Msg
