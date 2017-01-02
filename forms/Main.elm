@@ -205,6 +205,7 @@ isValidEmail : String -> Bool
 isValidEmail =
     let
         validEmail =
+            -- regex from rtfeldman/elm-validate. Looks like it does not cover 100% cases
             Regex.regex "^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$"
                 |> Regex.caseInsensitive
     in
