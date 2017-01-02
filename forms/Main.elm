@@ -11,7 +11,7 @@ import Api.Core
 import Api.Electives
 
 
-type alias Field =
+type alias Person =
     { name : String
     , email : String
     , department : Department
@@ -20,7 +20,7 @@ type alias Field =
 
 
 type alias Model =
-    { fields : List Field
+    { people : List Person
     , name : String
     , nameError : Maybe String
     , email : String
@@ -49,7 +49,7 @@ type Msg
 
 init : ( Model, Cmd Msg )
 init =
-    ( { fields = []
+    ( { people = []
       , name = ""
       , nameError = Nothing
       , email = ""
@@ -176,7 +176,7 @@ view model =
                                     )
                                 ]
                         )
-                        model.fields
+                        model.people
                     )
                 ]
             ]
@@ -225,7 +225,7 @@ update msg model =
             case model.department of
                 Just department ->
                     ( { model
-                        | fields = List.append model.fields [ Field model.name model.email department model.course ]
+                        | people = List.append model.people [ Person model.name model.email department model.course ]
                         , name = ""
                         , email = ""
                       }
