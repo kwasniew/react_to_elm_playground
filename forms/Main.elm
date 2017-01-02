@@ -42,9 +42,9 @@ type Msg
     = Submit
     | CurrentName String
     | CurrentEmail String
-    | SetDepartment String
+    | SelectDepartment String
     | Fetched (List String)
-    | SetCourse String
+    | SelectCourse String
 
 
 init : ( Model, Cmd Msg )
@@ -89,7 +89,7 @@ departmentSelect department =
                 Nothing ->
                     ""
     in
-        select [ value val, onInput SetDepartment ]
+        select [ value val, onInput SelectDepartment ]
             [ option [ value "" ] [ text "Which department?" ]
             , option [ value "core" ] [ text "NodeSchool: Core" ]
             , option [ value "electives" ] [ text "NodeSchool: Electives" ]
@@ -103,7 +103,7 @@ courseSelect model =
     else if (List.length model.courses) == 0 then
         span [] []
     else
-        select [ value model.course, onInput SetCourse ]
+        select [ value model.course, onInput SelectCourse ]
             ((option [ value "" ] [ text "Which course?" ])
                 :: (List.map
                         (\course -> option [ value course ] [ text course ])
@@ -239,7 +239,7 @@ update msg model =
         CurrentEmail txt ->
             ( { model | email = txt, emailError = validateEmail txt }, Cmd.none )
 
-        SetDepartment txt ->
+        SelectDepartment txt ->
             let
                 department =
                     stringToDepartment txt
@@ -260,7 +260,7 @@ update msg model =
         Fetched courses ->
             ( { model | courses = courses, courseLoading = False }, Cmd.none )
 
-        SetCourse txt ->
+        SelectCourse txt ->
             ( { model | course = txt }, Cmd.none )
 
 
