@@ -1,31 +1,56 @@
 module Main exposing (..)
 
 import Html exposing (..)
+import Html.Events exposing (onSubmit, onInput)
+import Html.Attributes exposing (placeholder, type_, value)
 
 
 type alias Model =
-    {}
+    { names : List String
+    , name : String
+    }
 
 
 type Msg
-    = NoOp
+    = Submit
+    | CurrentName String
 
 
 init : ( Model, Cmd Msg )
 init =
-    ( {}, Cmd.none )
+    ( { names = [], name = "" }, Cmd.none )
 
 
 view : Model -> Html Msg
 view model =
     div []
-        [ h1 [] [ text "Sign Up Sheet" ]
+        [ h1 []
+            [ text "Sign Up Sheet" ]
+        , form [ onSubmit Submit ]
+            [ input [ placeholder "Name", onInput CurrentName, value model.name ] []
+            , input [ type_ "submit" ] []
+            ]
+        , div []
+            [ h3 [] [ text "names" ]
+            , ul []
+                (List.map (\name -> li [] [ text name ]) model.names)
+            ]
         ]
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    ( model, Cmd.none )
+    case msg of
+        Submit ->
+            ( { model
+                | names = List.append model.names [ model.name ]
+                , name = ""
+              }
+            , Cmd.none
+            )
+
+        CurrentName name ->
+            ( { model | name = name }, Cmd.none )
 
 
 main : Program Never Model Msg
