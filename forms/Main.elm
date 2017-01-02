@@ -2,7 +2,7 @@ module Main exposing (..)
 
 import Html exposing (..)
 import Html.Events exposing (onSubmit, onInput)
-import Html.Attributes exposing (placeholder, type_, value, style, alt, src)
+import Html.Attributes exposing (placeholder, type_, value, style, alt, src, disabled)
 import Regex
 
 
@@ -13,17 +13,12 @@ type alias Field =
     }
 
 
-type alias Errors =
-    { name : Maybe String
-    , email : Maybe String
-    }
-
-
 type alias Model =
     { fields : List Field
-    , fieldErrors : Maybe Errors
     , name : String
+    , nameError : Maybe String
     , email : String
+    , emailError : Maybe String
     , department : String
     , isLoading : Bool
     }
@@ -38,9 +33,10 @@ type Msg
 init : ( Model, Cmd Msg )
 init =
     ( { fields = []
-      , fieldErrors = Nothing
       , name = ""
+      , nameError = Nothing
       , email = ""
+      , emailError = Nothing
       , department = ""
       , isLoading = False
       }
@@ -48,13 +44,13 @@ init =
     )
 
 
-errorField : Maybe Errors -> (Errors -> Maybe String) -> Html Msg
-errorField errors fieldFn =
+errorField : Maybe String -> Html Msg
+errorField error =
     let
         txt =
-            case errors of
-                Just errors ->
-                    Maybe.withDefault "" (fieldFn errors)
+            case error of
+                Just error ->
+                    error
 
                 Nothing ->
                     ""
@@ -76,6 +72,34 @@ courseSelect department =
     div [] [ depertmentSelect department ]
 
 
+isInvalid : Model -> Bool
+isInvalid model =
+    if model.name == "" then
+        True
+    else if model.department == "" then
+        True
+    else if not (isValidEmail model.email) then
+        True
+    else
+        False
+
+
+validateEmail : String -> Maybe String
+validateEmail email =
+    if not (isValidEmail email) then
+        Just "Invalid Email"
+    else
+        Nothing
+
+
+validateName : String -> Maybe String
+validateName name =
+    if name == "" then
+        Just "Name Required"
+    else
+        Nothing
+
+
 view : Model -> Html Msg
 view model =
     if model.isLoading then
@@ -87,17 +111,17 @@ view model =
             , form [ onSubmit Submit ]
                 [ div []
                     [ input [ placeholder "Name", onInput CurrentName, value model.name ] []
-                    , errorField model.fieldErrors .name
+                    , errorField model.nameError
                     ]
                 , br [] []
                 , div []
                     [ input [ placeholder "Email", onInput CurrentEmail, value model.email ] []
-                    , errorField model.fieldErrors .email
+                    , errorField model.emailError
                     ]
                 , br [] []
                 , courseSelect model.department
                 , br [] []
-                , input [ type_ "submit" ] []
+                , input [ type_ "submit", disabled (isInvalid model) ] []
                 ]
             , div []
                 [ h3 [] [ text "People" ]
@@ -124,59 +148,23 @@ isValidEmail =
         Regex.contains validEmail
 
 
-validationErrors : Model -> Maybe Errors
-validationErrors model =
-    let
-        nameError =
-            if model.name == "" then
-                Just "Name Required"
-            else
-                Nothing
-
-        emailError =
-            (if model.email == "" then
-                Just "Email Required"
-             else if not (isValidEmail model.email) then
-                Just "Invalid Email"
-             else
-                Nothing
-            )
-    in
-        case ( nameError, emailError ) of
-            ( Nothing, Nothing ) ->
-                Nothing
-
-            ( name, email ) ->
-                Just (Errors name email)
-
-
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Submit ->
-            let
-                errors =
-                    validationErrors model
-            in
-                case errors of
-                    Nothing ->
-                        ( { model
-                            | fields = List.append model.fields [ Field model.name model.email model.department ]
-                            , name = ""
-                            , email = ""
-                            , fieldErrors = Nothing
-                          }
-                        , Cmd.none
-                        )
-
-                    Just _ ->
-                        ( { model | fieldErrors = errors }, Cmd.none )
+            ( { model
+                | fields = List.append model.fields [ Field model.name model.email model.department ]
+                , name = ""
+                , email = ""
+              }
+            , Cmd.none
+            )
 
         CurrentName txt ->
-            ( { model | name = txt }, Cmd.none )
+            ( { model | name = txt, nameError = validateName txt }, Cmd.none )
 
         CurrentEmail txt ->
-            ( { model | email = txt }, Cmd.none )
+            ( { model | email = txt, emailError = validateEmail txt }, Cmd.none )
 
 
 main : Program Never Model Msg
