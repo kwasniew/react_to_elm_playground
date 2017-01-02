@@ -226,8 +226,6 @@ update msg model =
                 Just department ->
                     ( { model
                         | people = List.append model.people [ Person model.name model.email department model.course ]
-                        , name = ""
-                        , email = ""
                       }
                     , Cmd.none
                     )
