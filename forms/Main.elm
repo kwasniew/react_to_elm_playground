@@ -3,6 +3,7 @@ module Main exposing (..)
 import Html exposing (..)
 import Html.Events exposing (onSubmit, onInput)
 import Html.Attributes exposing (placeholder, type_, value, style)
+import Regex
 
 
 type alias Field =
@@ -85,6 +86,16 @@ view model =
         ]
 
 
+isValidEmail : String -> Bool
+isValidEmail =
+    let
+        validEmail =
+            Regex.regex "^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$"
+                |> Regex.caseInsensitive
+    in
+        Regex.contains validEmail
+
+
 validationErrors : Model -> Maybe Errors
 validationErrors model =
     let
@@ -97,6 +108,8 @@ validationErrors model =
         emailError =
             (if model.email == "" then
                 Just "Email Required"
+             else if not (isValidEmail model.email) then
+                Just "Invalid Email"
              else
                 Nothing
             )
