@@ -15,6 +15,7 @@ type alias Field =
     { name : String
     , email : String
     , department : Department
+    , course : String
     }
 
 
@@ -113,14 +114,7 @@ courseSelect model =
 
 isInvalid : Model -> Bool
 isInvalid model =
-    if model.name == "" then
-        True
-    else if model.department == Nothing then
-        True
-    else if not (isValidEmail model.email) then
-        True
-    else
-        False
+    model.name == "" || model.department == Nothing || model.course == "" || (not (isValidEmail model.email))
 
 
 validateEmail : String -> Maybe String
@@ -172,7 +166,14 @@ view model =
                     (List.map
                         (\field ->
                             li []
-                                [ text (String.join " - " [ field.name, field.email, (String.toLower (toString field.department)) ])
+                                [ text
+                                    (String.join " - "
+                                        [ field.name
+                                        , field.email
+                                        , (String.toLower (toString field.department))
+                                        , field.course
+                                        ]
+                                    )
                                 ]
                         )
                         model.fields
@@ -224,7 +225,7 @@ update msg model =
             case model.department of
                 Just department ->
                     ( { model
-                        | fields = List.append model.fields [ Field model.name model.email department ]
+                        | fields = List.append model.fields [ Field model.name model.email department model.course ]
                         , name = ""
                         , email = ""
                       }
