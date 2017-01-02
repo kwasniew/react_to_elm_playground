@@ -30,12 +30,20 @@ type alias Model =
     , courseLoading : Bool
     , course : String
     , isLoading : Bool
+    , saveStatus : Status
     }
 
 
 type Department
     = Core
     | Electives
+
+
+type Status
+    = Ready
+    | Saving
+    | Success
+    | Error
 
 
 type Msg
@@ -59,6 +67,7 @@ init =
       , courseLoading = False
       , course = ""
       , isLoading = False
+      , saveStatus = Ready
       }
     , Cmd.none
     )
@@ -133,6 +142,22 @@ validateName name =
         Nothing
 
 
+submitButton : Model -> Html Msg
+submitButton model =
+    case model.saveStatus of
+        Ready ->
+            input [ type_ "submit", disabled (isInvalid model), value "Submit" ] []
+
+        Saving ->
+            input [ type_ "submit", disabled True, value "Saving..." ] []
+
+        Success ->
+            input [ type_ "submit", disabled True, value "Saved!" ] []
+
+        Error ->
+            input [ type_ "submit", disabled (isInvalid model), value "Save Failer -Retry?" ] []
+
+
 view : Model -> Html Msg
 view model =
     if model.isLoading then
@@ -158,7 +183,7 @@ view model =
                     , courseSelect model
                     ]
                 , br [] []
-                , input [ type_ "submit", disabled (isInvalid model) ] []
+                , submitButton model
                 ]
             , div []
                 [ h3 [] [ text "People" ]
