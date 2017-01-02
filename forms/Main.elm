@@ -1,7 +1,7 @@
 module Main exposing (..)
 
 import Html exposing (..)
-import Html.Events exposing (onSubmit, onInput)
+import Html.Events exposing (onSubmit, onInput, on)
 import Html.Attributes exposing (placeholder, type_, value, style, alt, src, disabled)
 import Regex
 
@@ -28,6 +28,7 @@ type Msg
     = Submit
     | CurrentName String
     | CurrentEmail String
+    | SetDepartment String
 
 
 init : ( Model, Cmd Msg )
@@ -60,7 +61,7 @@ errorField error =
 
 depertmentSelect : String -> Html Msg
 depertmentSelect department =
-    select [ value department ]
+    select [ value department, onInput SetDepartment ]
         [ option [ value "" ] [ text "Which department?" ]
         , option [ value "core" ] [ text "NodeSchool: Core" ]
         , option [ value "electives" ] [ text "NodeSchool: Electives" ]
@@ -165,6 +166,9 @@ update msg model =
 
         CurrentEmail txt ->
             ( { model | email = txt, emailError = validateEmail txt }, Cmd.none )
+
+        SetDepartment txt ->
+            ( { model | department = txt }, Cmd.none )
 
 
 main : Program Never Model Msg
