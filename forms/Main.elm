@@ -9,7 +9,7 @@ import Regex
 type alias Field =
     { name : String
     , email : String
-    , department : String
+    , department : Department
     }
 
 
@@ -19,9 +19,14 @@ type alias Model =
     , nameError : Maybe String
     , email : String
     , emailError : Maybe String
-    , department : String
+    , department : Maybe Department
     , isLoading : Bool
     }
+
+
+type Department
+    = Core
+    | Electives
 
 
 type Msg
@@ -38,7 +43,7 @@ init =
       , nameError = Nothing
       , email = ""
       , emailError = Nothing
-      , department = ""
+      , department = Nothing
       , isLoading = False
       }
     , Cmd.none
@@ -59,16 +64,25 @@ errorField error =
         span [ style [ ( "color", "red" ) ] ] [ text txt ]
 
 
-depertmentSelect : String -> Html Msg
+depertmentSelect : Maybe Department -> Html Msg
 depertmentSelect department =
-    select [ value department, onInput SetDepartment ]
-        [ option [ value "" ] [ text "Which department?" ]
-        , option [ value "core" ] [ text "NodeSchool: Core" ]
-        , option [ value "electives" ] [ text "NodeSchool: Electives" ]
-        ]
+    let
+        val =
+            case department of
+                Just value ->
+                    String.toLower (toString value)
+
+                Nothing ->
+                    ""
+    in
+        select [ value val, onInput SetDepartment ]
+            [ option [ value "" ] [ text "Which department?" ]
+            , option [ value "core" ] [ text "NodeSchool: Core" ]
+            , option [ value "electives" ] [ text "NodeSchool: Electives" ]
+            ]
 
 
-courseSelect : String -> Html Msg
+courseSelect : Maybe Department -> Html Msg
 courseSelect department =
     div [] [ depertmentSelect department ]
 
@@ -77,7 +91,7 @@ isInvalid : Model -> Bool
 isInvalid model =
     if model.name == "" then
         True
-    else if model.department == "" then
+    else if model.department == Nothing then
         True
     else if not (isValidEmail model.email) then
         True
@@ -130,7 +144,7 @@ view model =
                     (List.map
                         (\field ->
                             li []
-                                [ text (String.join " - " [ field.name, field.email, field.department ])
+                                [ text (String.join " - " [ field.name, field.email, (String.toLower (toString field.department)) ])
                                 ]
                         )
                         model.fields
@@ -149,17 +163,35 @@ isValidEmail =
         Regex.contains validEmail
 
 
+stringToDepartment : String -> Maybe Department
+stringToDepartment department =
+    case department of
+        "core" ->
+            Just Core
+
+        "electives" ->
+            Just Electives
+
+        _ ->
+            Nothing
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Submit ->
-            ( { model
-                | fields = List.append model.fields [ Field model.name model.email model.department ]
-                , name = ""
-                , email = ""
-              }
-            , Cmd.none
-            )
+            case model.department of
+                Just department ->
+                    ( { model
+                        | fields = List.append model.fields [ Field model.name model.email department ]
+                        , name = ""
+                        , email = ""
+                      }
+                    , Cmd.none
+                    )
+
+                Nothing ->
+                    ( model, Cmd.none )
 
         CurrentName txt ->
             ( { model | name = txt, nameError = validateName txt }, Cmd.none )
@@ -168,7 +200,7 @@ update msg model =
             ( { model | email = txt, emailError = validateEmail txt }, Cmd.none )
 
         SetDepartment txt ->
-            ( { model | department = txt }, Cmd.none )
+            ( { model | department = stringToDepartment txt }, Cmd.none )
 
 
 main : Program Never Model Msg
