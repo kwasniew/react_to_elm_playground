@@ -2,7 +2,7 @@ port module Main exposing (..)
 
 import Html exposing (..)
 import Html.Events exposing (onSubmit, onInput, on)
-import Html.Attributes exposing (placeholder, type_, value, style, alt, src, disabled)
+import Html.Attributes exposing (placeholder, type_, value, style, alt, src, disabled, selected)
 import Regex
 import Process
 import Task
@@ -82,12 +82,20 @@ errorField error =
         span [ style [ ( "color", "red" ) ] ] [ text txt ]
 
 
+withSelection : String -> String -> List (Attribute Msg)
+withSelection val current =
+    if val == current then
+        [ value val, selected True ]
+    else
+        [ value val ]
+
+
 departmentSelect : String -> Html Msg
 departmentSelect department =
-    select [ value department, onInput SelectDepartment ]
-        [ option [ value "" ] [ text "Which department?" ]
-        , option [ value "core" ] [ text "NodeSchool: Core" ]
-        , option [ value "electives" ] [ text "NodeSchool: Electives" ]
+    select [ onInput SelectDepartment ]
+        [ option (withSelection "" department) [ text "Which department?" ]
+        , option (withSelection "core" department) [ text "NodeSchool: Core" ]
+        , option (withSelection "electives" department) [ text "NodeSchool: Electives" ]
         ]
 
 
@@ -98,10 +106,10 @@ courseSelect model =
     else if (List.length model.courses) == 0 then
         span [] []
     else
-        select [ value model.course, onInput SelectCourse ]
-            ((option [ value "" ] [ text "Which course?" ])
+        select [ onInput SelectCourse ]
+            ((option (withSelection "" model.course) [ text "Which course?" ])
                 :: (List.map
-                        (\course -> option [ value course ] [ text course ])
+                        (\course -> option (withSelection course model.course) [ text course ])
                         model.courses
                    )
             )
