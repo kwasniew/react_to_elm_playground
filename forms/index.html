@@ -16,8 +16,19 @@
     <script src="./elm.js"></script>
     <script>
      var app = Elm.Main.fullscreen();
+     var count = 1;
      app.ports.savePeople.subscribe(function(people) {
-       localStorage.setItem("people", JSON.stringify(people));
+       const success = !!(count++ % 2);
+
+       setTimeout(() => {
+         if (success) {
+            localStorage.setItem("people", JSON.stringify(people));
+            app.ports.savePeopleSuccess.send(people);
+         } else {
+            app.ports.savePeopleFailure.send("error");
+         }
+
+       }, 1000);
      });
    </script>
   </body>

@@ -5,7 +5,7 @@ import Html.Events exposing (onSubmit, onInput, on)
 import Html.Attributes exposing (placeholder, type_, value, style, alt, src, disabled, selected)
 import Regex
 import Process
-import Task
+import Task exposing (Task)
 import Time
 import Api.Core
 import Api.Electives
@@ -48,6 +48,8 @@ type Msg
     | SelectDepartment String
     | Fetched (List String)
     | SelectCourse String
+    | SavePeopleSuccess (List Person)
+    | SavePeopleFailure String
 
 
 init : ( Model, Cmd Msg )
@@ -149,7 +151,7 @@ submitButton model =
             input [ type_ "submit", disabled True, value "Saved!" ] []
 
         Error ->
-            input [ type_ "submit", disabled (isInvalid model), value "Save Failer -Retry?" ] []
+            input [ type_ "submit", disabled (isInvalid model), value "Save Failure - Retry?" ] []
 
 
 view : Model -> Html Msg
@@ -229,17 +231,31 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Submit ->
+            let
+                people =
+                    List.append model.people [ Person model.name model.email model.department model.course ]
+            in
+                ( { model
+                    | saveStatus = Saving
+                  }
+                , savePeople people
+                )
+
+        CurrentName txt ->
             ( { model
-                | people = List.append model.people [ Person model.name model.email model.department model.course ]
+                | name = txt
+                , nameError = validateName txt
               }
             , Cmd.none
             )
 
-        CurrentName txt ->
-            ( { model | name = txt, nameError = validateName txt }, Cmd.none )
-
         CurrentEmail txt ->
-            ( { model | email = txt, emailError = validateEmail txt }, Cmd.none )
+            ( { model
+                | email = txt
+                , emailError = validateEmail txt
+              }
+            , Cmd.none
+            )
 
         SelectDepartment department ->
             let
@@ -252,21 +268,53 @@ update msg model =
                     else
                         model.courses
             in
-                ( { model | department = department, courses = courses, course = "", courseLoading = courseLoading }
+                ( { model
+                    | department = department
+                    , courses = courses
+                    , course = ""
+                    , courseLoading = courseLoading
+                  }
                 , fetchCourses department
                 )
 
         Fetched courses ->
-            ( { model | courses = courses, courseLoading = False }, Cmd.none )
+            ( { model
+                | courses = courses
+                , courseLoading = False
+              }
+            , Cmd.none
+            )
 
         SelectCourse txt ->
             ( { model | course = txt }, Cmd.none )
+
+        SavePeopleSuccess people ->
+            ( { model
+                | people = people
+                , saveStatus = Success
+              }
+            , Cmd.none
+            )
+
+        SavePeopleFailure _ ->
+            ( { model | saveStatus = Error }, Cmd.none )
 
 
 port savePeople : List Person -> Cmd msg
 
 
+port savePeopleSuccess : (List Person -> msg) -> Sub msg
+
+
+port savePeopleFailure : (String -> msg) -> Sub msg
+
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    Sub.batch [ savePeopleSuccess SavePeopleSuccess, savePeopleFailure SavePeopleFailure ]
+
+
 main : Program Never Model Msg
 main =
     Html.program
-        { view = view, init = init, update = update, subscriptions = (\_ -> Sub.none) }
+        { view = view, init = init, update = update, subscriptions = subscriptions }
