@@ -48,7 +48,7 @@ update msg model =
             , Client.search txt
             )
 
-        Remove ->
+        ClearSearch ->
             ( { model | searchValue = "" }, Cmd.none )
 
         Fetched response ->
@@ -62,6 +62,9 @@ update msg model =
                             Debug.log "error" err
                     in
                         ( model, Cmd.none )
+
+        Add food ->
+            ( { model | selectedFoods = List.append model.selectedFoods [ food ] }, Cmd.none )
 
 
 
@@ -132,7 +135,7 @@ foodSearch model =
                             , if model.searchValue == "" then
                                 text ""
                               else
-                                i [ class "remove icon", onClick Remove ] []
+                                i [ class "remove icon", onClick ClearSearch ] []
                             ]
                         ]
                     ]
@@ -147,7 +150,7 @@ foodSearch model =
             , tbody []
                 (List.map
                     (\food ->
-                        tr []
+                        tr [ onClick (Add food) ]
                             [ td [] [ text food.description ]
                             , td [ class "right aligned" ] [ text (toString food.kcal) ]
                             , td [ class "right aligned" ] [ text (toString food.protein_g) ]

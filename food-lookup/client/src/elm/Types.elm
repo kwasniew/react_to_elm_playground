@@ -21,5 +21,6 @@ type alias Model =
 
 type Msg
     = Search String
-    | Remove
+    | ClearSearch
     | Fetched (Result Http.Error (List Food))
+    | Add Food
