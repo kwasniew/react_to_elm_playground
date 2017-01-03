@@ -23,3 +23,4 @@ The server is now running at [localhost:8000](localhost:8000)
 - when writing a union type to model state transitions I find proper order makes it easier to reason about code (e.g. Ready -> Saving -> Success/Error)
 - I find Elm messages much more explicit than Redux mapDispatchToProps, mapStateToProps, applyMiddleware, JSX Provider etc.
 - gotcha: JSX value on select element does not work in Elm
+- Process.sleep can be used to convert setTimeout to Elm
