@@ -263,6 +263,7 @@ update msg model =
             ( { model
                 | name = txt
                 , nameError = validateName txt
+                , saveStatus = Ready
               }
             , Cmd.none
             )
@@ -271,6 +272,7 @@ update msg model =
             ( { model
                 | email = txt
                 , emailError = validateEmail txt
+                , saveStatus = Ready
               }
             , Cmd.none
             )
@@ -291,6 +293,7 @@ update msg model =
                     , courses = courses
                     , course = ""
                     , courseLoading = courseLoading
+                    , saveStatus = Ready
                   }
                 , fetchCourses department
                 )
