@@ -11,6 +11,10 @@ import Api.Core
 import Api.Electives
 
 
+type alias Flags =
+    { people : List Person }
+
+
 type alias Person =
     { name : String
     , email : String
@@ -50,10 +54,11 @@ type Msg
     | SelectCourse String
     | SavePeopleSuccess (List Person)
     | SavePeopleFailure String
+    | FetchPeopleSuccess (List Person)
 
 
-init : ( Model, Cmd Msg )
-init =
+init : Flags -> ( Model, Cmd Msg )
+init flags =
     ( { people = []
       , name = ""
       , nameError = Nothing
@@ -63,10 +68,10 @@ init =
       , courses = []
       , courseLoading = False
       , course = ""
-      , isLoading = False
+      , isLoading = True
       , saveStatus = Ready
       }
-    , Cmd.none
+    , fetchPeople flags.people
     )
 
 
@@ -214,6 +219,10 @@ isValidEmail =
         Regex.contains validEmail
 
 
+
+-- this is a slow request simulation
+
+
 fetchCourses : String -> Cmd Msg
 fetchCourses department =
     case department of
@@ -225,6 +234,15 @@ fetchCourses department =
 
         _ ->
             Cmd.none
+
+
+
+-- this is a slow request simulation
+
+
+fetchPeople : List Person -> Cmd Msg
+fetchPeople people =
+    Process.sleep (1 * Time.second) |> Task.perform (\_ -> FetchPeopleSuccess people)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -299,6 +317,9 @@ update msg model =
         SavePeopleFailure _ ->
             ( { model | saveStatus = Error }, Cmd.none )
 
+        FetchPeopleSuccess people ->
+            ( { model | isLoading = False, people = people }, Cmd.none )
+
 
 port savePeople : List Person -> Cmd msg
 
@@ -314,7 +335,7 @@ subscriptions model =
     Sub.batch [ savePeopleSuccess SavePeopleSuccess, savePeopleFailure SavePeopleFailure ]
 
 
-main : Program Never Model Msg
+main : Program Flags Model Msg
 main =
-    Html.program
+    Html.programWithFlags
         { view = view, init = init, update = update, subscriptions = subscriptions }
