@@ -19,8 +19,8 @@ foodsDecoder =
 foodDecoder : Decoder Food
 foodDecoder =
     decode Food
-        |> required "description" string
-        |> required "kcal" float
-        |> required "protein_g" float
-        |> required "fat_g" float
-        |> required "carbohydrate_g" float
+        |> optional "description" string "no description"
+        |> optional "kcal" float 0.0
+        |> optional "protein_g" float 0.0
+        |> optional "fat_g" float 0.0
+        |> optional "carbohydrate_g" float 0.0
