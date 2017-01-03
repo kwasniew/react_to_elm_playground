@@ -29,6 +29,7 @@ type alias Food =
 type alias Model =
     { searchValue : String
     , foods : List Food
+    , selectedFoods : List Food
     }
 
 
@@ -36,6 +37,7 @@ model : Model
 model =
     { searchValue = ""
     , foods = []
+    , selectedFoods = []
     }
 
 
@@ -45,13 +47,17 @@ model =
 
 type Msg
     = Search String
+    | Remove
 
 
 update : Msg -> Model -> Model
 update msg model =
     case msg of
         Search txt ->
-            model
+            { model | searchValue = txt }
+
+        Remove ->
+            { model | searchValue = "" }
 
 
 
@@ -115,11 +121,15 @@ foodSearch model =
                     [ th [ colspan 5 ]
                         [ div [ class "ui fluid search" ]
                             [ div [ class "ui icon input" ]
-                                [ input [ class "prompt", type_ "text", placeholder "Search foods...", value "", onInput Search ]
+                                [ input [ class "prompt", type_ "text", placeholder "Search foods...", value model.searchValue, onInput Search ]
                                     []
                                 , i [ class "search icon" ] []
                                 ]
                             ]
+                        , if model.searchValue == "" then
+                            text ""
+                          else
+                            i [ class "remove icon", onClick Remove ] []
                         ]
                     ]
                 , tr []
@@ -151,7 +161,7 @@ view : Model -> Html Msg
 view model =
     div [ class "App" ]
         [ div [ class "ui text container" ]
-            [ selectedFoods []
+            [ selectedFoods model.selectedFoods
             , foodSearch model
             ]
         ]

@@ -14,3 +14,7 @@ $ npm start
 
 Lessons learned:
 - Elm attribute types are not just strings e.g. colspan has to be an int
+
+TODO:
+- toFixed 2
+- add CORS to backend
