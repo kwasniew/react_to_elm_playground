@@ -11,3 +11,6 @@ Then boot both the server and the client with:
 ```
 $ npm start
 ```
+
+Lessons learned:
+- Elm attribute types are not just strings e.g. colspan has to be an int
