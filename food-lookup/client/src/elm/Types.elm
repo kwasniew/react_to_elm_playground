@@ -24,3 +24,4 @@ type Msg
     | ClearSearch
     | Fetched (Result Http.Error (List Food))
     | Add Food
+    | Remove Int

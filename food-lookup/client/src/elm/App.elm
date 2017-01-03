@@ -66,6 +66,16 @@ update msg model =
         Add food ->
             ( { model | selectedFoods = List.append model.selectedFoods [ food ] }, Cmd.none )
 
+        Remove index ->
+            ( { model
+                | selectedFoods =
+                    List.append
+                        (List.take index model.selectedFoods)
+                        (List.drop (index + 1) model.selectedFoods)
+              }
+            , Cmd.none
+            )
+
 
 
 -- VIEW
@@ -95,9 +105,9 @@ selectedFoods foods =
                 ]
             ]
         , tbody []
-            (List.map
-                (\food ->
-                    tr []
+            (List.indexedMap
+                (\index food ->
+                    tr [ onClick (Remove index) ]
                         [ td [] [ text food.description ]
                         , td [ class "right aligned" ] [ text (toString food.kcal) ]
                         , td [ class "right aligned" ] [ text (toString food.protein_g) ]
