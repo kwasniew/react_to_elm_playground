@@ -50,7 +50,7 @@ type Msg
     | CurrentName String
     | CurrentEmail String
     | SelectDepartment String
-    | Fetched (List String)
+    | FetchCoursesSuccess (List String)
     | SelectCourse String
     | SavePeopleSuccess (List Person)
     | SavePeopleFailure String
@@ -227,10 +227,10 @@ fetchCourses : String -> Cmd Msg
 fetchCourses department =
     case department of
         "core" ->
-            Process.sleep (1 * Time.second) |> Task.perform (\_ -> Fetched Api.Core.courses)
+            Process.sleep (1 * Time.second) |> Task.perform (\_ -> FetchCoursesSuccess Api.Core.courses)
 
         "electives" ->
-            Process.sleep (1 * Time.second) |> Task.perform (\_ -> Fetched Api.Electives.courses)
+            Process.sleep (1 * Time.second) |> Task.perform (\_ -> FetchCoursesSuccess Api.Electives.courses)
 
         _ ->
             Cmd.none
@@ -295,7 +295,7 @@ update msg model =
                 , fetchCourses department
                 )
 
-        Fetched courses ->
+        FetchCoursesSuccess courses ->
             ( { model
                 | courses = courses
                 , courseLoading = False
