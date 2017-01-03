@@ -71,9 +71,9 @@ update msg model =
 -- VIEW
 
 
-sum : List a -> (a -> Float) -> Float
+sum : List a -> (a -> Float) -> Int
 sum foods propFn =
-    List.foldl (\food acc -> (propFn food) + acc) 0.0 foods
+    List.foldl (\food acc -> (propFn food) + acc) 0.0 foods |> round
 
 
 selectedFoods : List Food -> Html Msg

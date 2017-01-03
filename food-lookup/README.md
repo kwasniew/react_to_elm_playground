@@ -15,6 +15,4 @@ $ npm start
 Lessons learned:
 - Elm attribute types are not just strings e.g. colspan has to be an int
 - Webpack has some nice features like proxy web dev server but overall I find it too slow to be pleasant to use
-
-TODO:
-- toFixed 2
+- Number.toFixed() is not yet ported to Elm
