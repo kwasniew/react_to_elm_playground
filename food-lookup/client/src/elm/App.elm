@@ -3,6 +3,8 @@ module App exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
+import Types exposing (..)
+import Client
 
 
 -- APP
@@ -10,54 +12,56 @@ import Html.Events exposing (..)
 
 main : Program Never Model Msg
 main =
-    Html.beginnerProgram { model = model, view = view, update = update }
+    Html.program { init = init, view = view, update = update, subscriptions = (\_ -> Sub.none) }
 
 
 
 -- MODEL
 
 
-type alias Food =
-    { description : String
-    , kcal : Float
-    , protein_g : Float
-    , fat_g : Float
-    , carbohydrate_g : Float
-    }
-
-
-type alias Model =
-    { searchValue : String
-    , foods : List Food
-    , selectedFoods : List Food
-    }
-
-
-model : Model
-model =
-    { searchValue = ""
-    , foods = []
-    , selectedFoods = []
-    }
+init : ( Model, Cmd Msg )
+init =
+    ( { searchValue = ""
+      , foods = []
+      , selectedFoods = []
+      }
+    , Cmd.none
+    )
 
 
 
 -- UPDATE
 
 
-type Msg
-    = Search String
-    | Remove
-
-
-update : Msg -> Model -> Model
+update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Search txt ->
-            { model | searchValue = txt }
+            ( { model
+                | searchValue = txt
+                , foods =
+                    if txt == "" then
+                        []
+                    else
+                        model.foods
+              }
+            , Client.search txt
+            )
 
         Remove ->
-            { model | searchValue = "" }
+            ( { model | searchValue = "" }, Cmd.none )
+
+        Fetched response ->
+            case response of
+                Ok foods ->
+                    ( { model | foods = List.take 25 foods }, Cmd.none )
+
+                Result.Err err ->
+                    let
+                        _ =
+                            Debug.log "error" err
+                    in
+                        ( model, Cmd.none )
 
 
 
@@ -125,11 +129,11 @@ foodSearch model =
                                     []
                                 , i [ class "search icon" ] []
                                 ]
+                            , if model.searchValue == "" then
+                                text ""
+                              else
+                                i [ class "remove icon", onClick Remove ] []
                             ]
-                        , if model.searchValue == "" then
-                            text ""
-                          else
-                            i [ class "remove icon", onClick Remove ] []
                         ]
                     ]
                 , tr []

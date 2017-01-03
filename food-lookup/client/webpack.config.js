@@ -63,6 +63,9 @@ if ( TARGET_ENV === 'development' ) {
     devServer: {
       // serve index.html in place of 404 responses
       historyApiFallback: true,
+      proxy: {
+        "**": "http://localhost:3001"
+      },
     },
 
     module: {

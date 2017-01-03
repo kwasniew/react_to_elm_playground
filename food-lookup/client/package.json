@@ -8,6 +8,7 @@
     "type": "git",
     "url": "https://github.com/moarwick/elm-webpack-starter"
   },
+  "proxy": "http://localhost:3001/",
   "scripts": {
     "start": "webpack-dev-server --port 3000 --hot --inline --content-base src/",
     "build": "rimraf dist && webpack",
