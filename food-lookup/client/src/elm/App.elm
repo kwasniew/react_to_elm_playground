@@ -17,13 +17,26 @@ main =
 -- MODEL
 
 
+type alias Food =
+    { description : String
+    , kcal : Float
+    , protein_g : Float
+    , fat_g : Float
+    , carbohdrate_g : Float
+    }
+
+
 type alias Model =
-    { searchValue : String }
+    { searchValue : String
+    , foods : List Food
+    }
 
 
 model : Model
 model =
-    { searchValue = "" }
+    { searchValue = ""
+    , foods = []
+    }
 
 
 
@@ -74,7 +87,19 @@ foodSearch model =
                     , th [] [ text "Carbs (g)" ]
                     ]
                 ]
-            , tbody [] []
+            , tbody []
+                (List.map
+                    (\food ->
+                        tr []
+                            [ td [] [ text food.description ]
+                            , td [ class "right aligned" ] [ text (toString food.kcal) ]
+                            , td [ class "right aligned" ] [ text (toString food.protein_g) ]
+                            , td [ class "right aligned" ] [ text (toString food.fat_g) ]
+                            , td [ class "right aligned" ] [ text (toString food.carbohdrate_g) ]
+                            ]
+                    )
+                    model.foods
+                )
             ]
         ]
 
