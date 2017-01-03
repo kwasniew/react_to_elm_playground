@@ -46,7 +46,10 @@ update msg model =
                     else
                         model.foods
               }
-            , Client.search txt
+            , if txt /= "" then
+                Client.search txt
+              else
+                Cmd.none
             )
 
         ClearSearch ->
