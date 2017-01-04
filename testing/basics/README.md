@@ -1,2 +1,2 @@
-`elm-package install`
+`elm-package install`  
 `elm-test Main.elm`
