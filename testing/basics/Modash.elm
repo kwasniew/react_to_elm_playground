@@ -15,7 +15,7 @@ truncate str len =
 
 capitalize : String -> String
 capitalize str =
-    (left 1 str |> toUpper) ++ (dropLeft 1 str)
+    (left 1 str |> toUpper) ++ (dropLeft 1 (toLower str))
 
 
 camelCase : String -> String
