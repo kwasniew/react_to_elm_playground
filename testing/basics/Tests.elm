@@ -33,4 +33,20 @@ all =
                     in
                         Expect.equal (Modash.capitalize string) "There was one catch, and that was catch-22"
             ]
+        , describe "`camelCase:`"
+            [ test "camelizes string with spaces" <|
+                \() ->
+                    let
+                        string =
+                            "customer responded at"
+                    in
+                        Expect.equal (Modash.camelCase string) "customerRespondedAt"
+            , test "camelizes string with underscores" <|
+                \() ->
+                    let
+                        string =
+                            "customer_responded_at"
+                    in
+                        Expect.equal (Modash.camelCase string) "customerRespondedAt"
+            ]
         ]

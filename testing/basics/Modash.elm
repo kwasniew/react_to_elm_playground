@@ -22,7 +22,7 @@ camelCase : String -> String
 camelCase str =
     let
         words =
-            split All (regex "/[\\s|\\-|_]+/") str
+            split All (regex "[\\s|\\-|_]+") str
 
         first =
             take 1 words |> map toLower

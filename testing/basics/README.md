@@ -5,3 +5,4 @@
 # Lessons learned
 - elm-test+node-test-runner tests took 0.6s while equivalent jest+babel tests took 2.1s
 - useful testing tips in Elm: https://github.com/elm-community/elm-test#strategies-for-effective-testing
+- before updating elm-test to the latest version I experienced weird behavior where not failure reasons were reported
