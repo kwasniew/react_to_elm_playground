@@ -23,3 +23,4 @@ Lessons learned:
 
 TODO:
 - selected foods tests
+- decoder test

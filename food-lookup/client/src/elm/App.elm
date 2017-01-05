@@ -53,7 +53,7 @@ update msg model =
             )
 
         ClearSearch ->
-            ( { model | searchValue = "" }, Cmd.none )
+            ( { model | searchValue = "", foods = [] }, Cmd.none )
 
         Fetched response ->
             case response of

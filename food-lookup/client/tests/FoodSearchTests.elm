@@ -126,4 +126,22 @@ suite =
                         , Cmd.none
                         )
             ]
+        , describe "user clicks the remove icon"
+            [ test "should set the model property `foods`" <|
+                \() ->
+                    Expect.equal
+                        (App.update
+                            ClearSearch
+                            { searchValue = "brocc"
+                            , foods = foods
+                            , selectedFoods = []
+                            }
+                        )
+                        ( { searchValue = ""
+                          , foods = []
+                          , selectedFoods = []
+                          }
+                        , Cmd.none
+                        )
+            ]
         ]
