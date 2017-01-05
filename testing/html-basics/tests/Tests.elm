@@ -8,12 +8,22 @@ import Test.Html.Selector exposing (text, tag, all, Selector)
 
 addItemButtonSelector : Selector
 addItemButtonSelector =
-    Test.Html.Selector.all [ tag "button", text "Add item" ]
+    containsMatchingElement "button" "Add item"
 
 
 itemsHeaderSelector : Selector
 itemsHeaderSelector =
-    Test.Html.Selector.all [ tag "th", text "Items" ]
+    containsMatchingElement "th" "Items"
+
+
+containsMatchingElement : String -> String -> Selector
+containsMatchingElement tagName txt =
+    Test.Html.Selector.all [ tag tagName, text txt ]
+
+
+html : Query.Single
+html =
+    App.view { items = [], item = "" } |> Query.fromHtml
 
 
 all : Test
@@ -21,12 +31,10 @@ all =
     describe "App"
         [ test "should have `th` \"Items\"" <|
             \() ->
-                App.view { items = [], item = "" }
-                    |> Query.fromHtml
+                html
                     |> Query.has [ itemsHeaderSelector ]
         , test "should have a `button` element" <|
             \() ->
-                App.view { items = [], item = "" }
-                    |> Query.fromHtml
+                html
                     |> Query.has [ addItemButtonSelector ]
         ]
