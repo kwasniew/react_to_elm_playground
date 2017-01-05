@@ -16,4 +16,11 @@ all =
                     |> Query.fromHtml
                     |> Query.findAll [ classes [ ".remove", ".icon" ] ]
                     |> Query.count (Expect.equal 0)
+        , test "should display zero rows" <|
+            \() ->
+                foodSearch "" []
+                    |> Query.fromHtml
+                    |> Query.find [ tag "tbody" ]
+                    |> Query.children [ tag "tr" ]
+                    |> Query.count (Expect.equal 0)
         ]
