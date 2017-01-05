@@ -5,3 +5,6 @@
 # Testing
 
 `elm-test`
+
+# Lessons learned
+- elm-html-test can be used to test views
