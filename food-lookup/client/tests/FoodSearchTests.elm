@@ -17,7 +17,7 @@ all =
             \() ->
                 foodSearch "" []
                     |> Query.fromHtml
-                    |> Query.findAll [ classes [ ".remove", ".icon" ] ]
+                    |> Query.findAll [ classes [ "remove", "icon" ] ]
                     |> Query.count (Expect.equal 0)
         , test "should display zero rows" <|
             \() ->
@@ -41,5 +41,11 @@ all =
                         , foods = []
                         , selectedFoods = []
                         }
+            , test "should display the remove icon" <|
+                \() ->
+                    foodSearch "brocc" []
+                        |> Query.fromHtml
+                        |> Query.findAll [ classes [ "remove", "icon" ] ]
+                        |> Query.count (Expect.equal 1)
             ]
         ]
