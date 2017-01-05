@@ -7,5 +7,5 @@ import FoodSearchTests
 suite : Test
 suite =
     describe "Food Lookup"
-        [ FoodSearchTests.all
+        [ FoodSearchTests.suite
         ]

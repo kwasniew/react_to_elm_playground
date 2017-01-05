@@ -1,4 +1,4 @@
-module FoodSearchTests exposing (all)
+module FoodSearchTests exposing (suite)
 
 import Test exposing (..)
 import Expect
@@ -9,8 +9,8 @@ import App
 import Types exposing (..)
 
 
-all : Test
-all =
+suite : Test
+suite =
     describe "FoodSearch"
         [ test "should not display the remove icon" <|
             \() ->
@@ -87,5 +87,15 @@ all =
                             |> Query.find [ tag "tbody" ]
                             |> Query.children [ tag "tr" ]
                             |> Query.count (Expect.equal 2)
+                , test "should render the description of first row" <|
+                    \() ->
+                        foodSearch "" foods
+                            |> Query.fromHtml
+                            |> Query.has [ text "Broccolini" ]
+                , test "should render the description of second row" <|
+                    \() ->
+                        foodSearch "" foods
+                            |> Query.fromHtml
+                            |> Query.has [ text "Broccoli rabe" ]
                 ]
         ]
