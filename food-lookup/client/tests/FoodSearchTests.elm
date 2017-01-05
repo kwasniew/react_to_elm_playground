@@ -47,4 +47,38 @@ all =
                         |> Query.findAll [ classes [ "remove", "icon" ] ]
                         |> Query.count (Expect.equal 1)
             ]
+        , describe "API return results"
+            [ test "should set the model property `foods`" <|
+                \() ->
+                    let
+                        foods =
+                            [ { description = "Broccolini"
+                              , kcal = 100
+                              , protein_g = 11
+                              , fat_g = 21
+                              , carbohydrate_g = 31
+                              }
+                            , { description = "Broccoli rabe"
+                              , kcal = 200
+                              , protein_g = 12
+                              , fat_g = 22
+                              , carbohydrate_g = 32
+                              }
+                            ]
+                    in
+                        Expect.equal
+                            (App.update
+                                (Fetched (Ok foods))
+                                { searchValue = ""
+                                , foods = []
+                                , selectedFoods = []
+                                }
+                            )
+                            ( { searchValue = ""
+                              , foods = foods
+                              , selectedFoods = []
+                              }
+                            , Cmd.none
+                            )
+            ]
         ]
