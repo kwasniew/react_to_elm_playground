@@ -1,4 +1,4 @@
-module Tests exposing (..)
+module Tests exposing (suite)
 
 import Test exposing (test, Test, describe)
 import App exposing (view)
@@ -18,7 +18,7 @@ itemsHeaderSelector =
 
 containsMatchingElement : String -> String -> Selector
 containsMatchingElement tagName txt =
-    Test.Html.Selector.all [ tag tagName, text txt ]
+    all [ tag tagName, text txt ]
 
 
 html : Query.Single
@@ -26,8 +26,8 @@ html =
     App.view { items = [], item = "" } |> Query.fromHtml
 
 
-all : Test
-all =
+suite : Test
+suite =
     describe "App"
         [ test "should have `th` \"Items\"" <|
             \() ->
