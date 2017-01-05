@@ -47,25 +47,25 @@ all =
                         |> Query.findAll [ classes [ "remove", "icon" ] ]
                         |> Query.count (Expect.equal 1)
             ]
-        , describe "API return results"
-            [ test "should set the model property `foods`" <|
-                \() ->
-                    let
-                        foods =
-                            [ { description = "Broccolini"
-                              , kcal = 100
-                              , protein_g = 11
-                              , fat_g = 21
-                              , carbohydrate_g = 31
-                              }
-                            , { description = "Broccoli rabe"
-                              , kcal = 200
-                              , protein_g = 12
-                              , fat_g = 22
-                              , carbohydrate_g = 32
-                              }
-                            ]
-                    in
+        , let
+            foods =
+                [ { description = "Broccolini"
+                  , kcal = 100
+                  , protein_g = 11
+                  , fat_g = 21
+                  , carbohydrate_g = 31
+                  }
+                , { description = "Broccoli rabe"
+                  , kcal = 200
+                  , protein_g = 12
+                  , fat_g = 22
+                  , carbohydrate_g = 32
+                  }
+                ]
+          in
+            describe "API return results"
+                [ test "should set the model property `foods`" <|
+                    \() ->
                         Expect.equal
                             (App.update
                                 (Fetched (Ok foods))
@@ -80,5 +80,12 @@ all =
                               }
                             , Cmd.none
                             )
-            ]
+                , test "should display two rows" <|
+                    \() ->
+                        foodSearch "" foods
+                            |> Query.fromHtml
+                            |> Query.find [ tag "tbody" ]
+                            |> Query.children [ tag "tr" ]
+                            |> Query.count (Expect.equal 2)
+                ]
         ]
