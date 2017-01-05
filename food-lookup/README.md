@@ -17,3 +17,6 @@ Lessons learned:
 - Webpack has some nice features like proxy web dev server but overall I find it too slow to be pleasant to use
 - Number.toFixed() is not yet ported to Elm
 - describe and test compose very nicely in tests
+
+TODO:
+- selected foods tests
