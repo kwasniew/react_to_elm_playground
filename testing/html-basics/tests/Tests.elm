@@ -42,4 +42,15 @@ suite =
                     html { items = [], item = "Vancouver" }
                         |> Query.has [ all [ tag "button", boolAttribute "disabled" False ] ]
             ]
+        , describe "the user submits the form"
+            [ test "should add the item to model" <|
+                \() ->
+                    Expect.equal
+                        (App.update AddItem { items = [], item = "Vancouver" })
+                        ( { items = [ "Vancouver" ], item = "" }, Cmd.none )
+            , test "should render the item in the table" <|
+                \() ->
+                    html { items = [ "Vancouver" ], item = "" }
+                        |> Query.has [ all [ tag "td", text "Vancouver" ] ]
+            ]
         ]
