@@ -6,18 +6,8 @@ import Test.Html.Query as Query
 import Test.Html.Selector exposing (text, tag, all, Selector)
 
 
-addItemButtonSelector : Selector
-addItemButtonSelector =
-    containsMatchingElement "button" "Add item"
-
-
-itemsHeaderSelector : Selector
-itemsHeaderSelector =
-    containsMatchingElement "th" "Items"
-
-
-containsMatchingElement : String -> String -> Selector
-containsMatchingElement tagName txt =
+element : String -> String -> Selector
+element tagName txt =
     all [ tag tagName, text txt ]
 
 
@@ -32,9 +22,9 @@ suite =
         [ test "should have `th` \"Items\"" <|
             \() ->
                 html
-                    |> Query.has [ itemsHeaderSelector ]
+                    |> Query.has [ element "th" "Items" ]
         , test "should have a `button` element" <|
             \() ->
                 html
-                    |> Query.has [ addItemButtonSelector ]
+                    |> Query.has [ element "button" "Add item" ]
         ]
