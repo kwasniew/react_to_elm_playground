@@ -6,7 +6,6 @@ import FoodSearch exposing (foodSearch)
 import Test.Html.Query as Query
 import Test.Html.Selector exposing (tag, attribute, boolAttribute, text, all, classes, Selector)
 import App
-import Client
 import Types exposing (..)
 
 
