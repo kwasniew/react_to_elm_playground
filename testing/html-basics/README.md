@@ -8,3 +8,4 @@
 
 # Lessons learned
 - elm-html-test can be used to test views
+- all selector allows to write useful compound selectors

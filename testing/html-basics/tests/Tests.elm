@@ -27,4 +27,7 @@ suite =
             \() ->
                 html
                     |> Query.has [ element "button" "Add item" ]
+        , test "should have an `input` element" <|
+            \() ->
+                html |> Query.has [ tag "input" ]
         ]
