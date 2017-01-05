@@ -9,6 +9,33 @@ import App
 import Types exposing (..)
 
 
+item1 : Food
+item1 =
+    { description = "Broccolini"
+    , kcal = 100
+    , protein_g = 11
+    , fat_g = 21
+    , carbohydrate_g = 31
+    }
+
+
+item2 : Food
+item2 =
+    { description = "Broccoli rabe"
+    , kcal = 200
+    , protein_g = 12
+    , fat_g = 22
+    , carbohydrate_g = 32
+    }
+
+
+foods : List Food
+foods =
+    [ item1
+    , item2
+    ]
+
+
 suite : Test
 suite =
     describe "FoodSearch"
@@ -47,55 +74,56 @@ suite =
                         |> Query.findAll [ classes [ "remove", "icon" ] ]
                         |> Query.count (Expect.equal 1)
             ]
-        , let
-            foods =
-                [ { description = "Broccolini"
-                  , kcal = 100
-                  , protein_g = 11
-                  , fat_g = 21
-                  , carbohydrate_g = 31
-                  }
-                , { description = "Broccoli rabe"
-                  , kcal = 200
-                  , protein_g = 12
-                  , fat_g = 22
-                  , carbohydrate_g = 32
-                  }
-                ]
-          in
-            describe "API return results"
-                [ test "should set the model property `foods`" <|
-                    \() ->
-                        Expect.equal
-                            (App.update
-                                (Fetched (Ok foods))
-                                { searchValue = ""
-                                , foods = []
-                                , selectedFoods = []
-                                }
-                            )
-                            ( { searchValue = ""
-                              , foods = foods
-                              , selectedFoods = []
-                              }
-                            , Cmd.none
-                            )
-                , test "should display two rows" <|
-                    \() ->
-                        foodSearch "" foods
-                            |> Query.fromHtml
-                            |> Query.find [ tag "tbody" ]
-                            |> Query.children [ tag "tr" ]
-                            |> Query.count (Expect.equal 2)
-                , test "should render the description of first row" <|
-                    \() ->
-                        foodSearch "" foods
-                            |> Query.fromHtml
-                            |> Query.has [ text "Broccolini" ]
-                , test "should render the description of second row" <|
-                    \() ->
-                        foodSearch "" foods
-                            |> Query.fromHtml
-                            |> Query.has [ text "Broccoli rabe" ]
-                ]
+        , describe "API return results"
+            [ test "should set the model property `foods`" <|
+                \() ->
+                    Expect.equal
+                        (App.update
+                            (Fetched (Ok foods))
+                            { searchValue = ""
+                            , foods = []
+                            , selectedFoods = []
+                            }
+                        )
+                        ( { searchValue = ""
+                          , foods = foods
+                          , selectedFoods = []
+                          }
+                        , Cmd.none
+                        )
+            , test "should display two rows" <|
+                \() ->
+                    foodSearch "" foods
+                        |> Query.fromHtml
+                        |> Query.find [ tag "tbody" ]
+                        |> Query.children [ tag "tr" ]
+                        |> Query.count (Expect.equal 2)
+            , test "should render the description of first row" <|
+                \() ->
+                    foodSearch "" foods
+                        |> Query.fromHtml
+                        |> Query.has [ text "Broccolini" ]
+            , test "should render the description of second row" <|
+                \() ->
+                    foodSearch "" foods
+                        |> Query.fromHtml
+                        |> Query.has [ text "Broccoli rabe" ]
+            ]
+        , describe "user clicks food item"
+            [ test "should add the item to selected foods" <|
+                \() ->
+                    Expect.equal
+                        (App.update (Add item1)
+                            { searchValue = ""
+                            , foods = foods
+                            , selectedFoods = []
+                            }
+                        )
+                        ( { searchValue = ""
+                          , foods = foods
+                          , selectedFoods = [ item1 ]
+                          }
+                        , Cmd.none
+                        )
+            ]
         ]
