@@ -2,19 +2,21 @@ module App exposing (..)
 
 import Html exposing (..)
 import Html.Attributes exposing (class, href)
+import Navigation exposing (Location)
 
 
 type alias Model =
-    {}
+    { location : Location
+    }
 
 
 type Msg
-    = NoOp
+    = UrlChange Location
 
 
-init : ( Model, Cmd Msg )
-init =
-    ( {}, Cmd.none )
+init : Location -> ( Model, Cmd Msg )
+init location =
+    ( { location = location }, Cmd.none )
 
 
 atlantic : Html msg
@@ -64,5 +66,5 @@ update msg model =
 
 main : Program Never Model Msg
 main =
-    Html.program
+    Navigation.program UrlChange
         { view = view, init = init, update = update, subscriptions = (\_ -> Sub.none) }
