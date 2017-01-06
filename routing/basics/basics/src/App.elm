@@ -8,6 +8,7 @@ import Json.Decode as Json
 import Process
 import Time
 import Task exposing (Task)
+import Regex
 
 
 type alias Model =
@@ -63,8 +64,8 @@ link to children =
 
 
 match : Location -> String -> Html msg -> Html msg
-match location path view =
-    if location.pathname == path then
+match checkLocation path view =
+    if Regex.contains (Regex.regex ("^" ++ path)) checkLocation.pathname then
         view
     else
         text ""
@@ -100,6 +101,7 @@ view model =
         , match model.location "/atlantic" atlantic
         , match model.location "/pacific" pacific
         , match model.location "/black-sea" (blackSea model.counter)
+        , match model.location "/" (h3 [] [ text "Welcome! Select a body of saline water above." ])
         ]
 
 
