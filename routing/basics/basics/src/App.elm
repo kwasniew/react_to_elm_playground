@@ -63,46 +63,56 @@ link to children =
     a [ href to, onClickWithoutDefault (LinkTo to) ] children
 
 
-match : Location -> String -> Html msg -> Html msg
-match checkLocation path view =
-    if Regex.contains (Regex.regex ("^" ++ path)) checkLocation.pathname then
-        view
+type alias MatchSpec msg =
+    { pattern : String
+    , render : Html msg
+    }
+
+
+match : Location -> MatchSpec msg -> Html msg
+match checkLocation matchSpec =
+    if Regex.contains (Regex.regex ("^" ++ matchSpec.pattern)) checkLocation.pathname then
+        matchSpec.render
     else
         text ""
 
 
 view : Model -> Html Msg
 view model =
-    div [ class "ui text container" ]
-        [ h2 [ class "ui dividing header" ]
-            [ text "Which body of water?"
+    let
+        matchLocation =
+            match model.location
+    in
+        div [ class "ui text container" ]
+            [ h2 [ class "ui dividing header" ]
+                [ text "Which body of water?"
+                ]
+            , ul []
+                [ li []
+                    [ link "/atlantic"
+                        [ code []
+                            [ text "/atlantic" ]
+                        ]
+                    ]
+                , li []
+                    [ link "/pacific"
+                        [ code []
+                            [ text "/pacific" ]
+                        ]
+                    ]
+                , li []
+                    [ link "/black-sea"
+                        [ code []
+                            [ text "/black-sea" ]
+                        ]
+                    ]
+                ]
+            , hr [] []
+            , matchLocation { pattern = "/atlantic", render = atlantic }
+            , matchLocation { pattern = "/pacific", render = pacific }
+            , matchLocation { pattern = "/black-sea", render = (blackSea model.counter) }
+            , matchLocation { pattern = "/", render = (h3 [] [ text "Welcome! Select a body of saline water above." ]) }
             ]
-        , ul []
-            [ li []
-                [ link "/atlantic"
-                    [ code []
-                        [ text "/atlantic" ]
-                    ]
-                ]
-            , li []
-                [ link "/pacific"
-                    [ code []
-                        [ text "/pacific" ]
-                    ]
-                ]
-            , li []
-                [ link "/black-sea"
-                    [ code []
-                        [ text "/black-sea" ]
-                    ]
-                ]
-            ]
-        , hr [] []
-        , match model.location "/atlantic" atlantic
-        , match model.location "/pacific" pacific
-        , match model.location "/black-sea" (blackSea model.counter)
-        , match model.location "/" (h3 [] [ text "Welcome! Select a body of saline water above." ])
-        ]
 
 
 countDown : Task Never a -> Cmd Msg
