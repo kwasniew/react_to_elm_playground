@@ -16,3 +16,6 @@ childContextTypes
 components getting magical context param
 - impure history and location references from inside router
 - by default onClick on anchor tag doesn't prevent default so you have to write one
+- react router is very impure with things like Redirect and Link taking actions at a distance in some
+implicit context
+- react router seems to be mixing redirection logic with views

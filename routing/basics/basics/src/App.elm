@@ -5,21 +5,26 @@ import Html.Attributes exposing (class, href)
 import Navigation exposing (Location, newUrl)
 import Html.Events exposing (onClick, onWithOptions)
 import Json.Decode as Json
+import Process
+import Time
+import Task exposing (Task)
 
 
 type alias Model =
     { location : Location
+    , counter : Int
     }
 
 
 type Msg
     = UrlChange Location
     | LinkTo String
+    | CountDown
 
 
 init : Location -> ( Model, Cmd Msg )
 init location =
-    ( { location = location }, Cmd.none )
+    ( { location = location, counter = 3 }, Cmd.none )
 
 
 atlantic : Html msg
@@ -35,6 +40,15 @@ pacific =
     div []
         [ h3 [] [ text "Pacific Ocean" ]
         , p [] [ text "Ferdinand Magellan, a Portuguese explorer, named the ocean 'mar pacifico' in 1521, which means peaceful sea. " ]
+        ]
+
+
+blackSea : Int -> Html msg
+blackSea counter =
+    div []
+        [ h3 [] [ text "Black Sea" ]
+        , p [] [ text "Nothing to sea [sic] here ..." ]
+        , p [] [ text <| "Redirecting in " ++ toString counter ++ "..." ]
         ]
 
 
@@ -75,21 +89,70 @@ view model =
                         [ text "/pacific" ]
                     ]
                 ]
+            , li []
+                [ link "/black-sea"
+                    [ code []
+                        [ text "/black-sea" ]
+                    ]
+                ]
             ]
         , hr [] []
         , match model.location "/atlantic" atlantic
         , match model.location "/pacific" pacific
+        , match model.location "/black-sea" (blackSea model.counter)
         ]
+
+
+countDown : Task Never a -> Cmd Msg
+countDown =
+    Task.perform (\_ -> CountDown)
+
+
+inOneSecond : (Task x () -> a) -> a
+inOneSecond do =
+    Process.sleep (1 * Time.second) |> do
+
+
+redirect : String -> Task Never a -> Cmd Msg
+redirect path =
+    Task.perform (\_ -> LinkTo path)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         UrlChange location ->
-            ( { model | location = location }, Cmd.none )
+            let
+                shouldTriggerCounter =
+                    location.pathname == "/black-sea"
+            in
+                ( { model
+                    | location = location
+                    , counter = 3
+                  }
+                , if shouldTriggerCounter then
+                    inOneSecond countDown
+                  else
+                    Cmd.none
+                )
 
         LinkTo path ->
             ( model, newUrl path )
+
+        CountDown ->
+            let
+                counter =
+                    model.counter - 1
+
+                shouldRedirect =
+                    counter == 1
+            in
+                ( { model | counter = counter }
+                , if shouldRedirect then
+                    inOneSecond (redirect "/")
+                  else
+                    inOneSecond countDown
+                )
 
 
 main : Program Never Model Msg
