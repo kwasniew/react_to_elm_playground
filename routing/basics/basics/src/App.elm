@@ -2,8 +2,9 @@ module App exposing (..)
 
 import Html exposing (..)
 import Html.Attributes exposing (class, href)
-import Navigation exposing (Location)
-import Html.Events exposing (onClick)
+import Navigation exposing (Location, newUrl)
+import Html.Events exposing (onClick, onWithOptions)
+import Json.Decode as Json
 
 
 type alias Model =
@@ -37,9 +38,14 @@ pacific =
         ]
 
 
+onClickWithoutDefault : msg -> Attribute msg
+onClickWithoutDefault msg =
+    onWithOptions "click" { stopPropagation = False, preventDefault = True } (Json.succeed msg)
+
+
 link : String -> List (Html Msg) -> Html Msg
 link to children =
-    a [ href to, onClick (LinkTo to) ] children
+    a [ href to, onClickWithoutDefault (LinkTo to) ] children
 
 
 match : Location -> String -> Html msg -> Html msg
@@ -78,7 +84,12 @@ view model =
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    ( model, Cmd.none )
+    case msg of
+        UrlChange location ->
+            ( { model | location = location }, Cmd.none )
+
+        LinkTo path ->
+            ( model, newUrl path )
 
 
 main : Program Never Model Msg

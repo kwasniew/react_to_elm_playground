@@ -15,3 +15,4 @@ notes:
 childContextTypes
 components getting magical context param
 - impure history and location references from inside router
+- by default onClick on anchor tag doesn't prevent default so you have to write one
