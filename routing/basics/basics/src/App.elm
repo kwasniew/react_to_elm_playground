@@ -70,6 +70,14 @@ type alias MatchSpec msg =
     }
 
 
+defaultMatchSpec : MatchSpec msg
+defaultMatchSpec =
+    { pattern = "/"
+    , render = text ""
+    , exactly = False
+    }
+
+
 exactMatch : Location -> MatchSpec msg -> Bool
 exactMatch checkLocation matchSpec =
     matchSpec.exactly && matchSpec.pattern == checkLocation.pathname
@@ -85,7 +93,7 @@ match checkLocation matchSpec =
     if exactMatch checkLocation matchSpec || looseMatch checkLocation matchSpec then
         matchSpec.render
     else
-        text ""
+        defaultMatchSpec.render
 
 
 view : Model -> Html Msg
@@ -119,9 +127,9 @@ view model =
                     ]
                 ]
             , hr [] []
-            , matchLocation { exactly = False, pattern = "/atlantic", render = atlantic }
-            , matchLocation { exactly = False, pattern = "/pacific", render = pacific }
-            , matchLocation { exactly = False, pattern = "/black-sea", render = (blackSea model.counter) }
+            , matchLocation { defaultMatchSpec | pattern = "/atlantic", render = atlantic }
+            , matchLocation { defaultMatchSpec | pattern = "/pacific", render = pacific }
+            , matchLocation { defaultMatchSpec | pattern = "/black-sea", render = (blackSea model.counter) }
             , matchLocation { exactly = True, pattern = "/", render = (h3 [] [ text "Welcome! Select a body of saline water above." ]) }
             ]
 

@@ -19,3 +19,4 @@ components getting magical context param
 - react router is very impure with things like Redirect and Link taking actions at a distance in some
 implicit context
 - react router seems to be mixing redirection logic with views
+- Elm has a very interesting approach to default values for record properties: https://groups.google.com/forum/#!topic/elm-discuss/NJYTjCXzlfY
