@@ -50,7 +50,7 @@ link to children =
 
 match : Location -> String -> Html msg -> Html msg
 match location path view =
-    if (Debug.log "pathname" location.pathname) == path then
+    if location.pathname == path then
         view
     else
         text ""
