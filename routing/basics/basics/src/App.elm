@@ -42,6 +42,14 @@ link to children =
     a [ href to, onClick (LinkTo to) ] children
 
 
+match : Location -> String -> Html msg -> Html msg
+match location path view =
+    if (Debug.log "pathname" location.pathname) == path then
+        view
+    else
+        text ""
+
+
 view : Model -> Html Msg
 view model =
     div [ class "ui text container" ]
@@ -63,6 +71,8 @@ view model =
                 ]
             ]
         , hr [] []
+        , match model.location "/atlantic" atlantic
+        , match model.location "/pacific" pacific
         ]
 
 
