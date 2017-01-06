@@ -66,12 +66,23 @@ link to children =
 type alias MatchSpec msg =
     { pattern : String
     , render : Html msg
+    , exactly : Bool
     }
+
+
+exactMatch : Location -> MatchSpec msg -> Bool
+exactMatch checkLocation matchSpec =
+    matchSpec.exactly && matchSpec.pattern == checkLocation.pathname
+
+
+looseMatch : Location -> MatchSpec msg -> Bool
+looseMatch checkLocation matchSpec =
+    matchSpec.exactly == False && Regex.contains (Regex.regex ("^" ++ matchSpec.pattern)) checkLocation.pathname
 
 
 match : Location -> MatchSpec msg -> Html msg
 match checkLocation matchSpec =
-    if Regex.contains (Regex.regex ("^" ++ matchSpec.pattern)) checkLocation.pathname then
+    if exactMatch checkLocation matchSpec || looseMatch checkLocation matchSpec then
         matchSpec.render
     else
         text ""
@@ -108,10 +119,10 @@ view model =
                     ]
                 ]
             , hr [] []
-            , matchLocation { pattern = "/atlantic", render = atlantic }
-            , matchLocation { pattern = "/pacific", render = pacific }
-            , matchLocation { pattern = "/black-sea", render = (blackSea model.counter) }
-            , matchLocation { pattern = "/", render = (h3 [] [ text "Welcome! Select a body of saline water above." ]) }
+            , matchLocation { exactly = False, pattern = "/atlantic", render = atlantic }
+            , matchLocation { exactly = False, pattern = "/pacific", render = pacific }
+            , matchLocation { exactly = False, pattern = "/black-sea", render = (blackSea model.counter) }
+            , matchLocation { exactly = True, pattern = "/", render = (h3 [] [ text "Welcome! Select a body of saline water above." ]) }
             ]
 
 
