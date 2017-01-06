@@ -3,6 +3,7 @@ module App exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (class, href)
 import Navigation exposing (Location)
+import Html.Events exposing (onClick)
 
 
 type alias Model =
@@ -12,6 +13,7 @@ type alias Model =
 
 type Msg
     = UrlChange Location
+    | LinkTo String
 
 
 init : Location -> ( Model, Cmd Msg )
@@ -35,6 +37,11 @@ pacific =
         ]
 
 
+link : String -> List (Html Msg) -> Html Msg
+link to children =
+    a [ href to, onClick (LinkTo to) ] children
+
+
 view : Model -> Html Msg
 view model =
     div [ class "ui text container" ]
@@ -43,13 +50,13 @@ view model =
             ]
         , ul []
             [ li []
-                [ a [ href "/atlantic" ]
+                [ link "/atlantic"
                     [ code []
                         [ text "/atlantic" ]
                     ]
                 ]
             , li []
-                [ a [ href "/pacific" ]
+                [ link "/pacific"
                     [ code []
                         [ text "/pacific" ]
                     ]
