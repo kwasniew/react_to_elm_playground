@@ -1,22 +1,13 @@
 # Routing basics
 
-This app is powered by create-react-app.
-
 ## Running
 
-Install dependencies:
 
 ```
-npm i
+elm-live src/App.elm --dir=. --pushstate --output=public/elm.js --debug
 ```
 
-Boot:
-
-```
-npm start
-```
-
-The app will be available at `http://localhost:3000`
+The app will be available at `http://localhost:8000`
 
 
 notes:
