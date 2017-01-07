@@ -1,0 +1,22 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+  min-width: 500px;
+}
+
+.spacer.row {
+  height: 50px;
+}
+
+.Album {
+  margin-left: 20px;
+}
+
+.Album.spacer.row {
+  height: 20px;
+}
+
+.VerticalMenu {
+  margin: 10px;
+}
