@@ -3,6 +3,7 @@ module Album exposing (album)
 import Types exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (..)
+import Helpers exposing (durationToHuman)
 
 
 album : Album -> Html Msg
@@ -47,7 +48,7 @@ album alb =
                             tr []
                                 [ td [] [ text (toString track.trackNumber) ]
                                 , td [] [ text track.name ]
-                                , td [] [ text (toString track.durationMs) ]
+                                , td [] [ text (durationToHuman track.durationMs) ]
                                 ]
                         )
                         alb.tracks
