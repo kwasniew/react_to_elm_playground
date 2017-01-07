@@ -8,7 +8,7 @@ import Json.Decode as Json
 import Process
 import Time
 import Task exposing (Task)
-import Regex
+import UrlParser exposing ((</>), s, int, string, parsePath, top)
 
 
 type alias Model =
@@ -85,7 +85,11 @@ exactMatch checkLocation matchSpec =
 
 looseMatch : Location -> MatchSpec msg -> Bool
 looseMatch checkLocation matchSpec =
-    matchSpec.exactly == False && Regex.contains (Regex.regex ("^" ++ matchSpec.pattern)) checkLocation.pathname
+    let
+        matches =
+            parsePath (UrlParser.string) checkLocation == Just (String.dropLeft 1 matchSpec.pattern)
+    in
+        matchSpec.exactly == False && matches
 
 
 isMatch : Location -> MatchSpec msg -> Bool
