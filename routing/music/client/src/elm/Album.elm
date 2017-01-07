@@ -14,20 +14,20 @@ album alb =
                 [ div [ class "six wide column", style [ ( "minWidth", "212px" ) ] ]
                     [ img [ src alb.imageUrl, style [ ( "width", "212px" ) ], alt "album" ] []
                     ]
-                ]
-            , div [ class "one wide column" ] []
-            , div [ class "six wide column" ]
-                [ p []
-                    [ text <|
-                        "By "
-                            ++ alb.artist.name
-                            ++ " - "
-                            ++ (toString alb.year)
-                            ++ " - "
-                            ++ (toString (List.length alb.tracks))
-                            ++ " songs"
+                , div [ class "one wide column" ] []
+                , div [ class "six wide column" ]
+                    [ p []
+                        [ text <|
+                            "By "
+                                ++ alb.artist.name
+                                ++ " - "
+                                ++ (toString alb.year)
+                                ++ " - "
+                                ++ (toString (List.length alb.tracks))
+                                ++ " songs"
+                        ]
+                    , div [ class "ui left floated large button" ] [ text "Close" ]
                     ]
-                , div [ class "ui left floated large button" ] [ text "Close" ]
                 ]
             ]
         , div [ class "spacer row" ] []
