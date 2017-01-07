@@ -23,6 +23,21 @@ type Msg
     | CountDown
 
 
+type alias MatchSpec msg =
+    { pattern : String
+    , render : Html msg
+    , exactly : Bool
+    }
+
+
+defaultMatchSpec : MatchSpec msg
+defaultMatchSpec =
+    { pattern = "/"
+    , render = text ""
+    , exactly = False
+    }
+
+
 init : Location -> ( Model, Cmd Msg )
 init location =
     ( { location = location, counter = 3 }, Cmd.none )
@@ -63,21 +78,6 @@ link to children =
     a [ href to, onClickWithoutDefault (LinkTo to) ] children
 
 
-type alias MatchSpec msg =
-    { pattern : String
-    , render : Html msg
-    , exactly : Bool
-    }
-
-
-defaultMatchSpec : MatchSpec msg
-defaultMatchSpec =
-    { pattern = "/"
-    , render = text ""
-    , exactly = False
-    }
-
-
 exactMatch : Location -> MatchSpec msg -> Bool
 exactMatch checkLocation matchSpec =
     matchSpec.exactly && matchSpec.pattern == checkLocation.pathname
@@ -88,12 +88,25 @@ looseMatch checkLocation matchSpec =
     matchSpec.exactly == False && Regex.contains (Regex.regex ("^" ++ matchSpec.pattern)) checkLocation.pathname
 
 
+isMatch : Location -> MatchSpec msg -> Bool
+isMatch checkLocation matchSpec =
+    exactMatch checkLocation matchSpec || looseMatch checkLocation matchSpec
+
+
 match : Location -> MatchSpec msg -> Html msg
 match checkLocation matchSpec =
-    if exactMatch checkLocation matchSpec || looseMatch checkLocation matchSpec then
+    if isMatch checkLocation matchSpec then
         matchSpec.render
     else
         defaultMatchSpec.render
+
+
+miss : Location -> List (MatchSpec msg) -> Html msg -> Html msg
+miss checkLocation matchSpecs render =
+    if List.any (\matchSpec -> isMatch checkLocation matchSpec) matchSpecs then
+        defaultMatchSpec.render
+    else
+        render
 
 
 view : Model -> Html Msg
@@ -101,6 +114,16 @@ view model =
     let
         matchLocation =
             match model.location
+
+        matchSpecs =
+            [ { defaultMatchSpec | pattern = "/atlantic", render = atlantic }
+            , { defaultMatchSpec | pattern = "/pacific", render = pacific }
+            , { defaultMatchSpec | pattern = "/black-sea", render = (blackSea model.counter) }
+            , { exactly = True, pattern = "/", render = (h3 [] [ text "Welcome! Select a body of saline water above." ]) }
+            ]
+
+        matchLocationSpecs =
+            List.map matchLocation matchSpecs
     in
         div [ class "ui text container" ]
             [ h2 [ class "ui dividing header" ]
@@ -127,10 +150,16 @@ view model =
                     ]
                 ]
             , hr [] []
-            , matchLocation { defaultMatchSpec | pattern = "/atlantic", render = atlantic }
-            , matchLocation { defaultMatchSpec | pattern = "/pacific", render = pacific }
-            , matchLocation { defaultMatchSpec | pattern = "/black-sea", render = (blackSea model.counter) }
-            , matchLocation { exactly = True, pattern = "/", render = (h3 [] [ text "Welcome! Select a body of saline water above." ]) }
+            , div [] matchLocationSpecs
+            , miss model.location
+                matchSpecs
+                (div [ class "ui inverted red segment" ]
+                    [ h3 []
+                        [ text "Error! No matches for"
+                        , code [] [ text model.location.pathname ]
+                        ]
+                    ]
+                )
             ]
 
 
