@@ -13,3 +13,5 @@ $ npm start
 ```
 
 Lessons learned:
+- you can't introspect Html Attributes: https://groups.google.com/forum/#!searchin/elm-discuss/introspect$20attribute%7Csort:relevance/elm-discuss/KHoBr1me8_4/igVHjbUaPLsJ
+- whitespace has meaning in case expressions
