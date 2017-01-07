@@ -67,7 +67,7 @@ update msg model =
 view : Model -> Html Msg
 view model =
     div [ class "ui grid" ]
-        [ Html.map Router topBar
+        [ Html.map Router (topBar True)
         , div [ class "spacer row" ] []
         , div [ class "row" ] [ albumsContainer model.fetched model.albums ]
         ]

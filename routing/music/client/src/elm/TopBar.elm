@@ -5,8 +5,8 @@ import Html.Attributes exposing (..)
 import Router exposing (link, to, onClickWithoutDefault, RouterMsg(..))
 
 
-topBar : Html RouterMsg
-topBar =
+topBar : Bool -> Html RouterMsg
+topBar isLoggedIn =
     div [ class "ui huge top attached fluid secondary menu" ]
         [ div [ class "item" ] []
         , div [ class "item" ]
@@ -14,6 +14,9 @@ topBar =
             ]
         , div [ class "right menu" ]
             -- TODO: try link abstraction
-            [ a [ class "ui item", href "/logout", onClickWithoutDefault (LinkTo "/logout") ] [ text "Logout" ]
+            [ if isLoggedIn then
+                a [ class "ui item", href "/logout", onClickWithoutDefault (LinkTo "/logout") ] [ text "Logout" ]
+              else
+                a [ class "ui item", href "/login", onClickWithoutDefault (LinkTo "/login") ] [ text "Login" ]
             ]
         ]
