@@ -1,4 +1,4 @@
-module Client exposing (getAlbums)
+port module Client exposing (getAlbums, setToken, removeToken)
 
 import Http exposing (..)
 import Json.Decode exposing (..)
@@ -38,3 +38,13 @@ trackDecoder =
         |> optional "trackNumber" int 0
         |> optional "name" string ""
         |> optional "durationMs" int 0
+
+
+port setToken : String -> Cmd msg
+
+
+port removeToken : () -> Cmd msg
+
+
+
+-- port getToken : (String -> msg) -> Sub msg
