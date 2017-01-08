@@ -36,12 +36,20 @@ albumIds =
 init : Location -> ( Model, Cmd Msg )
 init location =
     ( { fetched = False, albums = [], location = location }
-    , getAlbums albumIds "D6W69PRgCoDKgHZGJmRUNA"
+    , Cmd.batch [ getAlbums albumIds "D6W69PRgCoDKgHZGJmRUNA", redirect "/" (basePath ++ "/") location ]
     )
 
 
 
 -- UPDATE
+
+
+redirect : String -> String -> Location -> Cmd Msg
+redirect from to location =
+    if location.pathname == from then
+        newUrl to
+    else
+        Cmd.none
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -60,7 +68,7 @@ update msg model =
                         ( model, Cmd.none )
 
         UrlChange location ->
-            ( { model | location = location }, Cmd.none )
+            ( { model | location = location }, redirect "/" (basePath ++ "/") location )
 
         LinkTo url ->
             ( model, newUrl url )
@@ -70,9 +78,14 @@ update msg model =
 -- VIEW
 
 
+basePathSegment : String
+basePathSegment =
+    "albums"
+
+
 basePath : String
 basePath =
-    "albums"
+    "/" ++ basePathSegment
 
 
 view : Model -> Html Msg
@@ -82,8 +95,8 @@ view model =
         , div [ class "spacer row" ] []
         , div [ class "row" ]
             [ match
-                (UrlParser.s basePath </> string)
+                (UrlParser.s basePathSegment </> string)
                 model.location
-                (albumsContainer model ("/" ++ basePath))
+                (albumsContainer model basePath)
             ]
         ]
