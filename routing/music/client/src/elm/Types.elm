@@ -13,7 +13,9 @@ type alias Model =
 
 
 type alias Album =
-    { imageUrl : String
+    { id : String
+    , name : String
+    , imageUrl : String
     , year : String
     , artist : Artist
     , tracks : List Track

@@ -19,6 +19,8 @@ albumsDecoder =
 albumDecoder : Decoder Album
 albumDecoder =
     decode Album
+        |> optional "id" string ""
+        |> optional "name" string ""
         |> optional "imageUrl" string ""
         |> optional "year" string ""
         |> optional "artist" artistDecoder { name = "" }
