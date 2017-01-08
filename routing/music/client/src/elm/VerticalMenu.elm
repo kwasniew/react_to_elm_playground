@@ -3,10 +3,10 @@ module VerticalMenu exposing (verticalMenu)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Types exposing (..)
-import Router exposing (onClickWithoutDefault, RouterMsg(..))
+import Router exposing (onClickWithoutDefault)
 
 
-verticalMenu : List Album -> Html RouterMsg
+verticalMenu : List Album -> Html Msg
 verticalMenu albums =
     div [ class "ui secondary vertical menu" ]
         (div [ class "header item" ]

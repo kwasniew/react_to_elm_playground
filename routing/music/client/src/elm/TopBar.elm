@@ -2,10 +2,11 @@ module TopBar exposing (topBar)
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Router exposing (onClickWithoutDefault, RouterMsg(..))
+import Router exposing (onClickWithoutDefault)
+import Types exposing (..)
 
 
-topBar : Bool -> Html RouterMsg
+topBar : Bool -> Html Msg
 topBar isLoggedIn =
     div [ class "ui huge top attached fluid secondary menu" ]
         [ div [ class "item" ] []

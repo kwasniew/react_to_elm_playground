@@ -7,7 +7,7 @@ import Types exposing (..)
 import AlbumsContainer exposing (albumsContainer)
 import Client exposing (getAlbums)
 import Router exposing (match)
-import Navigation exposing (Location)
+import Navigation exposing (Location, newUrl)
 import UrlParser exposing (s, string, top, oneOf, (</>))
 
 
@@ -62,8 +62,8 @@ update msg model =
         UrlChange location ->
             ( { model | location = location }, Cmd.none )
 
-        _ ->
-            ( model, Cmd.none )
+        LinkTo url ->
+            ( model, newUrl url )
 
 
 
@@ -73,7 +73,7 @@ update msg model =
 view : Model -> Html Msg
 view model =
     div [ class "ui grid" ]
-        [ Html.map Router (topBar True)
+        [ topBar True
         , div [ class "spacer row" ] []
         , div [ class "row" ]
             [ match

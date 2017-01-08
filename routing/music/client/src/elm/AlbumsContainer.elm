@@ -22,7 +22,7 @@ albumsContainer model =
     else
         div [ class "ui two column divided grid" ]
             [ div [ class "ui six wide column", style [ ( "maxWidth", "250" ) ] ]
-                [ Html.map Router <| verticalMenu model.albums ]
+                [ verticalMenu model.albums ]
             , div [ class "ui ten wide column" ]
                 [ (matchWithData
                     (UrlParser.s "albums" </> string)

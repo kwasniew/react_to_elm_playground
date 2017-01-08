@@ -1,6 +1,5 @@
 module Types exposing (..)
 
-import Router exposing (RouterMsg)
 import Http
 import Navigation exposing (Location)
 
@@ -36,6 +35,6 @@ type alias Track =
 
 
 type Msg
-    = Router RouterMsg
+    = LinkTo String
     | AlbumsFetched (Result Http.Error (List Album))
     | UrlChange Location

@@ -1,4 +1,4 @@
-module Router exposing (onClickWithoutDefault, match, matchWithData, RouterMsg(..))
+module Router exposing (onClickWithoutDefault, match, matchWithData)
 
 import Html exposing (a, Attribute, Html, text)
 import Html.Events exposing (onWithOptions)
@@ -10,16 +10,6 @@ import UrlParser exposing ((</>), s, int, string, parsePath, top, Parser)
 onClickWithoutDefault : msg -> Attribute msg
 onClickWithoutDefault msg =
     onWithOptions "click" { stopPropagation = False, preventDefault = True } (Json.succeed msg)
-
-
-type RouterMsg
-    = LinkTo String
-
-
-type alias Match a msg =
-    { pattern : Parser (a -> a) a
-    , render : Html msg
-    }
 
 
 match : Parser (a -> a) a -> Location -> Html msg -> Html msg
