@@ -9,6 +9,7 @@ import Client exposing (getAlbums)
 import Router exposing (match)
 import Navigation exposing (Location, newUrl)
 import UrlParser exposing (s, string, (</>))
+import Login exposing (login)
 
 
 -- APP
@@ -35,7 +36,11 @@ albumIds =
 
 init : Location -> ( Model, Cmd Msg )
 init location =
-    ( { fetched = False, albums = [], location = location }
+    ( { fetched = False
+      , albums = []
+      , location = location
+      , loginInProgress = False
+      }
     , Cmd.batch [ getAlbums albumIds "D6W69PRgCoDKgHZGJmRUNA", redirect "/" (basePath ++ "/") location ]
     )
 
@@ -73,6 +78,12 @@ update msg model =
         LinkTo url ->
             ( model, newUrl url )
 
+        PerformLogin ->
+            ( { model | loginInProgress = True }, Cmd.none )
+
+        TokenReceived result ->
+            ( model, Cmd.none )
+
 
 
 -- VIEW
@@ -98,5 +109,9 @@ view model =
                 (UrlParser.s basePathSegment </> string)
                 model.location
                 (albumsContainer model basePath)
+            , match
+                (UrlParser.s "login")
+                model.location
+                (login model.loginInProgress)
             ]
         ]

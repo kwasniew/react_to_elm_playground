@@ -11,6 +11,16 @@ getAlbums albumIds token =
     Http.send AlbumsFetched <| Http.get ("/api/albums?ids=" ++ (String.join "," albumIds) ++ "&token=" ++ token) albumsDecoder
 
 
+login : Cmd Msg
+login =
+    Http.send TokenReceived <| Http.post "/api/login" Http.emptyBody tokenDecoder
+
+
+tokenDecoder : Decoder String
+tokenDecoder =
+    field "token" string
+
+
 albumsDecoder : Decoder (List Album)
 albumsDecoder =
     (list albumDecoder)

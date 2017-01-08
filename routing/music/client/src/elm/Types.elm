@@ -8,6 +8,7 @@ type alias Model =
     { fetched : Bool
     , albums : List Album
     , location : Location
+    , loginInProgress : Bool
     }
 
 
@@ -38,3 +39,5 @@ type Msg
     = LinkTo String
     | AlbumsFetched (Result Http.Error (List Album))
     | UrlChange Location
+    | PerformLogin
+    | TokenReceived (Result Http.Error String)
