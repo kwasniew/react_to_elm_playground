@@ -43,7 +43,7 @@ init location =
       , loginInProgress = False
       , token = Nothing
       }
-    , Cmd.batch [ getAlbums albumIds "D6W69PRgCoDKgHZGJmRUNA", redirect "/" (basePath ++ "/") location ]
+    , Cmd.batch [ redirect "/" (basePath ++ "/") location ]
     )
 
 
@@ -94,7 +94,13 @@ update msg model =
         TokenReceived response ->
             case response of
                 Ok token ->
-                    ( { model | token = Just token, loginInProgress = False }, Cmd.batch [ Client.setToken token, newUrl (basePath ++ "/") ] )
+                    ( { model | token = Just token, loginInProgress = False }
+                    , Cmd.batch
+                        [ getAlbums albumIds token
+                        , Client.setToken token
+                        , newUrl (basePath ++ "/")
+                        ]
+                    )
 
                 Result.Err err ->
                     error model err
