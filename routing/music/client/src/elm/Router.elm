@@ -1,9 +1,10 @@
-module Router exposing (link, to, onClickWithoutDefault, RouterMsg(..))
+module Router exposing (onClickWithoutDefault, match, RouterMsg(..))
 
-import Html exposing (a, Attribute, Html)
-import Html.Attributes exposing (href, attribute)
+import Html exposing (a, Attribute, Html, text)
 import Html.Events exposing (onWithOptions)
 import Json.Decode as Json
+import Navigation exposing (Location, newUrl)
+import UrlParser exposing ((</>), s, int, string, parsePath, top)
 
 
 onClickWithoutDefault : msg -> Attribute msg
@@ -11,42 +12,30 @@ onClickWithoutDefault msg =
     onWithOptions "click" { stopPropagation = False, preventDefault = True } (Json.succeed msg)
 
 
-type alias LinkConfig msg =
-    { to : String
-    , msg : String -> msg
-    , className : String
-    }
-
-
 type RouterMsg
     = LinkTo String
 
 
-defaultLinkConfig : msg -> LinkConfig msg
-defaultLinkConfig msg =
-    { to = ""
-    , msg = (\x -> msg)
-    , className = ""
+type alias Match msg =
+    { pattern : String
+    , render : Html msg
     }
 
 
-to : String -> Attribute msg
-to location =
-    href location
+pathMatch : Location -> Match msg -> Bool
+pathMatch checkLocation matchSpec =
+    parsePath (UrlParser.string) checkLocation == Just (String.dropLeft 1 matchSpec.pattern)
 
 
-link : List (Attribute msg) -> List (Html msg) -> Html msg
-link attributes children =
-    -- a [ href linkConfig.to, onClickWithoutDefault (linkConfig.msg linkConfig.to) ] children
-    a
-        (List.map
-            (\a ->
-                let
-                    x =
-                        Debug.log "attr" a
-                in
-                    a
-            )
-            attributes
-        )
-        children
+match : List (Match msg) -> Location -> String -> Html msg
+match matches location pattern =
+    let
+        maybeMatch =
+            List.head <| List.filter (\route -> pathMatch location route) matches
+    in
+        case maybeMatch of
+            Just match ->
+                match.render
+
+            Nothing ->
+                text ""

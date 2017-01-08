@@ -2,11 +2,13 @@ module Types exposing (..)
 
 import Router exposing (RouterMsg)
 import Http
+import Navigation exposing (Location)
 
 
 type alias Model =
     { fetched : Bool
     , albums : List Album
+    , location : Location
     }
 
 
@@ -34,3 +36,4 @@ type alias Track =
 type Msg
     = Router RouterMsg
     | AlbumsFetched (Result Http.Error (List Album))
+    | UrlChange Location

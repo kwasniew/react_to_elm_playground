@@ -2,7 +2,7 @@ module TopBar exposing (topBar)
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Router exposing (link, to, onClickWithoutDefault, RouterMsg(..))
+import Router exposing (onClickWithoutDefault, RouterMsg(..))
 
 
 topBar : Bool -> Html RouterMsg

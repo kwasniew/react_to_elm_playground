@@ -6,6 +6,8 @@ import TopBar exposing (topBar)
 import Types exposing (..)
 import AlbumsContainer exposing (albumsContainer)
 import Client exposing (getAlbums)
+import Router exposing (match)
+import Navigation exposing (Location)
 
 
 -- APP
@@ -13,7 +15,7 @@ import Client exposing (getAlbums)
 
 main : Program Never Model Msg
 main =
-    Html.program { init = init, view = view, update = update, subscriptions = (\_ -> Sub.none) }
+    Navigation.program UrlChange { init = init, view = view, update = update, subscriptions = (\_ -> Sub.none) }
 
 
 
@@ -30,9 +32,9 @@ albumIds =
     ]
 
 
-init : ( Model, Cmd Msg )
-init =
-    ( { fetched = False, albums = [] }
+init : Location -> ( Model, Cmd Msg )
+init location =
+    ( { fetched = False, albums = [], location = location }
     , getAlbums albumIds "D6W69PRgCoDKgHZGJmRUNA"
     )
 
@@ -56,6 +58,9 @@ update msg model =
                     in
                         ( model, Cmd.none )
 
+        UrlChange location ->
+            ( { model | location = location }, Cmd.none )
+
         _ ->
             ( model, Cmd.none )
 
@@ -66,8 +71,17 @@ update msg model =
 
 view : Model -> Html Msg
 view model =
-    div [ class "ui grid" ]
-        [ Html.map Router (topBar True)
-        , div [ class "spacer row" ] []
-        , div [ class "row" ] [ albumsContainer model.fetched model.albums ]
-        ]
+    let
+        matches =
+            [ { pattern = "/albums", render = albumsContainer model.fetched model.albums } ]
+
+        match =
+            Router.match matches model.location
+    in
+        div [ class "ui grid" ]
+            [ Html.map Router (topBar True)
+            , div [ class "spacer row" ] []
+            , div [ class "row" ]
+                [ match "/albums"
+                ]
+            ]
