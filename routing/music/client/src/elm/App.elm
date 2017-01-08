@@ -6,9 +6,9 @@ import TopBar exposing (topBar)
 import Types exposing (..)
 import AlbumsContainer exposing (albumsContainer)
 import Client exposing (getAlbums)
-import Router exposing (match)
+import Router exposing (match, redirect)
 import Navigation exposing (Location, newUrl)
-import UrlParser exposing (s, string, (</>))
+import UrlParser exposing (s, string, (</>), Parser)
 import Login exposing (login)
 import Http
 
@@ -43,20 +43,12 @@ init location =
       , loginInProgress = False
       , token = Nothing
       }
-    , Cmd.batch [ redirect "/" (basePath ++ "/") location ]
+    , Cmd.batch [ redirectToBasePath location, redirectUnauthorizedAccess Nothing location ]
     )
 
 
 
 -- UPDATE
-
-
-redirect : String -> String -> Location -> Cmd Msg
-redirect from to location =
-    if location.pathname == from then
-        newUrl to
-    else
-        Cmd.none
 
 
 error : Model -> Http.Error -> ( Model, Cmd Msg )
@@ -66,6 +58,24 @@ error model err =
             Debug.log "error" err
     in
         ( model, Cmd.none )
+
+
+redirectToBasePath : Location -> Cmd msg
+redirectToBasePath location =
+    redirect "/" (basePath ++ "/") location
+
+
+isUnauthorizedAccess : Maybe a -> Location -> Bool
+isUnauthorizedAccess token location =
+    token == Nothing && Router.isMatch albumsParser location
+
+
+redirectUnauthorizedAccess : Maybe a -> Location -> Cmd msg
+redirectUnauthorizedAccess token location =
+    if isUnauthorizedAccess token location then
+        newUrl "/login"
+    else
+        Cmd.none
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -81,9 +91,13 @@ update msg model =
 
         UrlChange location ->
             if location.pathname == "/logout" then
-                ( { model | token = Nothing }, Cmd.batch [ newUrl "/login", Client.removeToken () ] )
+                ( { model | token = Nothing }
+                , Cmd.batch [ newUrl "/login", Client.removeToken () ]
+                )
             else
-                ( { model | location = location }, redirect "/" (basePath ++ "/") location )
+                ( { model | location = location }
+                , Cmd.batch [ redirectToBasePath location, redirectUnauthorizedAccess model.token location ]
+                )
 
         LinkTo url ->
             ( model, newUrl url )
@@ -120,6 +134,11 @@ basePath =
     "/" ++ basePathSegment
 
 
+albumsParser : Parser (String -> a) a
+albumsParser =
+    UrlParser.s basePathSegment </> string
+
+
 view : Model -> Html Msg
 view model =
     div [ class "ui grid" ]
@@ -127,7 +146,7 @@ view model =
         , div [ class "spacer row" ] []
         , div [ class "row" ]
             [ match
-                (UrlParser.s basePathSegment </> string)
+                albumsParser
                 model.location
                 (albumsContainer model basePath)
             , match

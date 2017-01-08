@@ -15,4 +15,5 @@ $ npm start
 Lessons learned:
 - you can't introspect Html Attributes: https://groups.google.com/forum/#!searchin/elm-discuss/introspect$20attribute%7Csort:relevance/elm-discuss/KHoBr1me8_4/igVHjbUaPLsJ
 - whitespace has meaning in case expressions
-- would be nice to have independent and fast elm dev server with webpack like historyApiFallback (for SPA routing) and proxy (for relative server API paths in client code). 
+- would be nice to have independent and fast Elm dev server with Webpack like historyApiFallback (for SPA routing) and proxy (for relative server API paths in client code).
+- when should we use type alias for different pages vs using only Location with pathname?
