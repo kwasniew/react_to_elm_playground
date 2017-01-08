@@ -4,6 +4,11 @@ import Http
 import Navigation exposing (Location)
 
 
+type alias Flags =
+    { token : Maybe String
+    }
+
+
 type alias Model =
     { fetched : Bool
     , albums : List Album

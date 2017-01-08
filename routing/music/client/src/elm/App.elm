@@ -16,9 +16,9 @@ import Http
 -- APP
 
 
-main : Program Never Model Msg
+main : Program Flags Model Msg
 main =
-    Navigation.program
+    Navigation.programWithFlags
         UrlChange
         { init = init
         , view = view
@@ -41,24 +41,40 @@ albumIds =
     ]
 
 
-init : Location -> ( Model, Cmd Msg )
-init location =
-    ( { fetched = False
-      , albums = []
-      , location = location
-      , loginInProgress = False
-      , token = Nothing
-      , targetPath =
-            if location.pathname /= loginPath then
-                location.pathname
+init : Flags -> Location -> ( Model, Cmd Msg )
+init flags location =
+    let
+        token =
+            flags.token
+
+        command =
+            if isRedirectableAdrress location then
+                redirectToBasePath location
+            else if isUnauthorizedAccess token location then
+                redirectUnauthorizedAccess token location
+            else if isAuthorizedAccess token location then
+                case token of
+                    Just t ->
+                        getAlbums albumIds t
+
+                    Nothing ->
+                        Cmd.none
             else
-                basePath ++ "/"
-      }
-    , Cmd.batch
-        [ redirectToBasePath location
-        , redirectUnauthorizedAccess Nothing location
-        ]
-    )
+                Cmd.none
+    in
+        ( { fetched = False
+          , albums = []
+          , location = location
+          , loginInProgress = False
+          , token = token
+          , targetPath =
+                if location.pathname /= loginPath then
+                    location.pathname
+                else
+                    basePath ++ "/"
+          }
+        , command
+        )
 
 
 
@@ -87,6 +103,11 @@ redirectToBasePath location =
 isUnauthorizedAccess : Maybe a -> Location -> Bool
 isUnauthorizedAccess token location =
     token == Nothing && Router.isMatch albumsParser location
+
+
+isAuthorizedAccess : Maybe a -> Location -> Bool
+isAuthorizedAccess token location =
+    token /= Nothing && Router.isMatch albumsParser location
 
 
 redirectUnauthorizedAccess : Maybe a -> Location -> Cmd msg

@@ -17,8 +17,3 @@ Lessons learned:
 - whitespace has meaning in case expressions
 - would be nice to have independent and fast Elm dev server with Webpack like historyApiFallback (for SPA routing) and proxy (for relative server API paths in client code).
 - when should we use type alias for different pages vs using only Location with pathname?
-
-
-TODO:
-- read local storage token and pass it with flags
-- redirect state preservation
