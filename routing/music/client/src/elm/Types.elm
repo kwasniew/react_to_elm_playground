@@ -9,6 +9,7 @@ type alias Model =
     , albums : List Album
     , location : Location
     , loginInProgress : Bool
+    , token : Maybe String
     }
 
 

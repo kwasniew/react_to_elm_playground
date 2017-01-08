@@ -10,6 +10,7 @@ import Router exposing (match)
 import Navigation exposing (Location, newUrl)
 import UrlParser exposing (s, string, (</>))
 import Login exposing (login)
+import Http
 
 
 -- APP
@@ -40,6 +41,7 @@ init location =
       , albums = []
       , location = location
       , loginInProgress = False
+      , token = Nothing
       }
     , Cmd.batch [ getAlbums albumIds "D6W69PRgCoDKgHZGJmRUNA", redirect "/" (basePath ++ "/") location ]
     )
@@ -57,6 +59,15 @@ redirect from to location =
         Cmd.none
 
 
+error : Model -> Http.Error -> ( Model, Cmd Msg )
+error model err =
+    let
+        _ =
+            Debug.log "error" err
+    in
+        ( model, Cmd.none )
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
@@ -66,11 +77,7 @@ update msg model =
                     ( { model | albums = albums, fetched = True }, Cmd.none )
 
                 Result.Err err ->
-                    let
-                        _ =
-                            Debug.log "error" err
-                    in
-                        ( model, Cmd.none )
+                    error model err
 
         UrlChange location ->
             ( { model | location = location }, redirect "/" (basePath ++ "/") location )
@@ -81,8 +88,13 @@ update msg model =
         PerformLogin ->
             ( { model | loginInProgress = True }, Cmd.none )
 
-        TokenReceived result ->
-            ( model, Cmd.none )
+        TokenReceived response ->
+            case response of
+                Ok token ->
+                    ( { model | token = Just token }, Client.setToken token )
+
+                Result.Err err ->
+                    error model err
 
 
 
