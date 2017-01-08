@@ -80,7 +80,10 @@ update msg model =
                     error model err
 
         UrlChange location ->
-            ( { model | location = location }, redirect "/" (basePath ++ "/") location )
+            if location.pathname == "/logout" then
+                ( { model | token = Nothing }, Cmd.batch [ newUrl "/login", Client.removeToken () ] )
+            else
+                ( { model | location = location }, redirect "/" (basePath ++ "/") location )
 
         LinkTo url ->
             ( model, newUrl url )
@@ -91,7 +94,7 @@ update msg model =
         TokenReceived response ->
             case response of
                 Ok token ->
-                    ( { model | token = Just token }, Cmd.batch [ Client.setToken token, newUrl (basePath ++ "/") ] )
+                    ( { model | token = Just token, loginInProgress = False }, Cmd.batch [ Client.setToken token, newUrl (basePath ++ "/") ] )
 
                 Result.Err err ->
                     error model err
@@ -114,7 +117,7 @@ basePath =
 view : Model -> Html Msg
 view model =
     div [ class "ui grid" ]
-        [ topBar True
+        [ topBar (model.token /= Nothing)
         , div [ class "spacer row" ] []
         , div [ class "row" ]
             [ match
