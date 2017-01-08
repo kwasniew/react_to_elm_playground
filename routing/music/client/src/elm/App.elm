@@ -6,7 +6,7 @@ import TopBar exposing (topBar)
 import Types exposing (..)
 import AlbumsContainer exposing (albumsContainer)
 import Client exposing (getAlbums)
-import Router exposing (match, redirect)
+import Router exposing (match)
 import Navigation exposing (Location, newUrl)
 import UrlParser exposing (s, string, (</>), Parser)
 import Login exposing (login)
@@ -47,20 +47,21 @@ init flags location =
         token =
             flags.token
 
-        command =
+        redirectCommand =
             if isRedirectableAdrress location then
                 redirectToBasePath location
             else if isUnauthorizedAccess token location then
                 redirectUnauthorizedAccess token location
-            else if isAuthorizedAccess token location then
-                case token of
-                    Just t ->
-                        getAlbums albumIds t
-
-                    Nothing ->
-                        Cmd.none
             else
                 Cmd.none
+
+        fetchDataCommand =
+            case token of
+                Just t ->
+                    getAlbums albumIds t
+
+                Nothing ->
+                    Cmd.none
     in
         ( { fetched = False
           , albums = []
@@ -73,7 +74,7 @@ init flags location =
                 else
                     basePath ++ "/"
           }
-        , command
+        , Cmd.batch [ redirectCommand, fetchDataCommand ]
         )
 
 
@@ -92,12 +93,12 @@ error model err =
 
 isRedirectableAdrress : Location -> Bool
 isRedirectableAdrress location =
-    location.pathname == ""
+    location.pathname == "/"
 
 
 redirectToBasePath : Location -> Cmd msg
 redirectToBasePath location =
-    redirect "/" (basePath ++ "/") location
+    newUrl (basePath ++ "/")
 
 
 isUnauthorizedAccess : Maybe a -> Location -> Bool
@@ -105,17 +106,9 @@ isUnauthorizedAccess token location =
     token == Nothing && Router.isMatch albumsParser location
 
 
-isAuthorizedAccess : Maybe a -> Location -> Bool
-isAuthorizedAccess token location =
-    token /= Nothing && Router.isMatch albumsParser location
-
-
 redirectUnauthorizedAccess : Maybe a -> Location -> Cmd msg
 redirectUnauthorizedAccess token location =
-    if isUnauthorizedAccess token location then
-        newUrl "/login"
-    else
-        Cmd.none
+    newUrl "/login"
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
