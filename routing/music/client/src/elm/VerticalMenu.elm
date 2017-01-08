@@ -6,8 +6,8 @@ import Types exposing (..)
 import Router exposing (onClickWithoutDefault)
 
 
-verticalMenu : List Album -> Html Msg
-verticalMenu albums =
+verticalMenu : List Album -> String -> Html Msg
+verticalMenu albums pathname =
     div [ class "ui secondary vertical menu" ]
         (div [ class "header item" ]
             [ text "Albums"
@@ -16,7 +16,7 @@ verticalMenu albums =
                     (\album ->
                         let
                             link =
-                                "/albums/" ++ album.id
+                                album.id
                         in
                             a [ class "item", href link, onClickWithoutDefault (LinkTo link) ] [ text album.name ]
                     )

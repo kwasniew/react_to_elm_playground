@@ -4,10 +4,11 @@ import Types exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Helpers exposing (durationToHuman)
+import Router exposing (onClickWithoutDefault)
 
 
-album : Album -> Html Msg
-album alb =
+album : Album -> String -> Html Msg
+album alb pathname =
     div [ class "Album" ]
         [ div [ class "row" ]
             [ div [ class "ui middle aligned three column grid" ]
@@ -26,7 +27,7 @@ album alb =
                                 ++ (toString (List.length alb.tracks))
                                 ++ " songs"
                         ]
-                    , div [ class "ui left floated large button" ] [ text "Close" ]
+                    , a [ class "ui left floated large button", href pathname, onClickWithoutDefault (LinkTo pathname) ] [ text "Close" ]
                     ]
                 ]
             ]

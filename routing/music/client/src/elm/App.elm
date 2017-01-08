@@ -8,7 +8,7 @@ import AlbumsContainer exposing (albumsContainer)
 import Client exposing (getAlbums)
 import Router exposing (match)
 import Navigation exposing (Location, newUrl)
-import UrlParser exposing (s, string, top, oneOf, (</>))
+import UrlParser exposing (s, string, (</>))
 
 
 -- APP
@@ -79,6 +79,6 @@ view model =
             [ match
                 (UrlParser.s "albums" </> string)
                 model.location
-                (albumsContainer model)
+                (albumsContainer model "/albums")
             ]
         ]

@@ -9,26 +9,26 @@ import Router exposing (matchWithData)
 import UrlParser exposing (s, string, top, (</>))
 
 
-albumsView : List Album -> String -> Html Msg
-albumsView albums selectedAlbumId =
+albumsView : List Album -> String -> String -> Html Msg
+albumsView albums selectedAlbumId pathname =
     div []
-        (albums |> List.filter (\a -> a.id == selectedAlbumId) |> List.map (\a -> album a))
+        (albums |> List.filter (\a -> a.id == selectedAlbumId) |> List.map (\a -> album a pathname))
 
 
-albumsContainer : Model -> Html Msg
-albumsContainer model =
+albumsContainer : Model -> String -> Html Msg
+albumsContainer model pathname =
     if not model.fetched then
         div [ class "ui active centered inline loader" ] []
     else
         div [ class "ui two column divided grid" ]
             [ div [ class "ui six wide column", style [ ( "maxWidth", "250" ) ] ]
-                [ verticalMenu model.albums ]
+                [ verticalMenu model.albums pathname ]
             , div [ class "ui ten wide column" ]
                 [ (matchWithData
                     (UrlParser.s "albums" </> string)
                     model.location
                     (\id ->
-                        albumsView model.albums id
+                        albumsView model.albums id (pathname ++ "/")
                     )
                   )
                 ]
