@@ -8,6 +8,7 @@ import AlbumsContainer exposing (albumsContainer)
 import Client exposing (getAlbums)
 import Router exposing (match)
 import Navigation exposing (Location)
+import UrlParser exposing (s, string, top, oneOf, (</>))
 
 
 -- APP
@@ -71,17 +72,13 @@ update msg model =
 
 view : Model -> Html Msg
 view model =
-    let
-        matches =
-            [ { pattern = "/albums", render = albumsContainer model.fetched model.albums } ]
-
-        match =
-            Router.match matches model.location
-    in
-        div [ class "ui grid" ]
-            [ Html.map Router (topBar True)
-            , div [ class "spacer row" ] []
-            , div [ class "row" ]
-                [ match "/albums"
-                ]
+    div [ class "ui grid" ]
+        [ Html.map Router (topBar True)
+        , div [ class "spacer row" ] []
+        , div [ class "row" ]
+            [ match
+                (UrlParser.s "albums" </> string)
+                model.location
+                (albumsContainer model)
             ]
+        ]
