@@ -10,6 +10,7 @@ type alias Model =
     , location : Location
     , loginInProgress : Bool
     , token : Maybe String
+    , targetPath : String
     }
 
 

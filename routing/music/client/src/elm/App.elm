@@ -48,6 +48,11 @@ init location =
       , location = location
       , loginInProgress = False
       , token = Nothing
+      , targetPath =
+            if location.pathname /= loginPath then
+                location.pathname
+            else
+                basePath ++ "/"
       }
     , Cmd.batch
         [ redirectToBasePath location
@@ -67,6 +72,11 @@ error model err =
             Debug.log "error" err
     in
         ( model, Cmd.none )
+
+
+isRedirectableAdrress : Location -> Bool
+isRedirectableAdrress location =
+    location.pathname == ""
 
 
 redirectToBasePath : Location -> Cmd msg
@@ -100,16 +110,17 @@ update msg model =
 
         UrlChange location ->
             if location.pathname == "/logout" then
-                ( { model | token = Nothing }
-                , Cmd.batch [ newUrl "/login", Client.removeToken () ]
+                ( { model | token = Nothing, targetPath = basePath ++ "/" }
+                , Cmd.batch [ newUrl loginPath, Client.removeToken () ]
+                )
+            else if isUnauthorizedAccess model.token location then
+                ( { model | targetPath = location.pathname }, newUrl loginPath )
+            else if isRedirectableAdrress location then
+                ( { model | location = location }
+                , redirectToBasePath location
                 )
             else
-                ( { model | location = location }
-                , Cmd.batch
-                    [ redirectToBasePath location
-                    , redirectUnauthorizedAccess model.token location
-                    ]
-                )
+                ( { model | location = location }, Cmd.none )
 
         LinkTo url ->
             ( model, newUrl url )
@@ -124,7 +135,7 @@ update msg model =
                     , Cmd.batch
                         [ getAlbums albumIds token
                         , Client.setToken token
-                        , newUrl (basePath ++ "/")
+                        , newUrl model.targetPath
                         ]
                     )
 
@@ -144,6 +155,11 @@ basePathSegment =
 basePath : String
 basePath =
     "/" ++ basePathSegment
+
+
+loginPath : String
+loginPath =
+    "/login"
 
 
 albumsParser : Parser (String -> a) a
