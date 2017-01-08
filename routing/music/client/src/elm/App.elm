@@ -70,6 +70,11 @@ update msg model =
 -- VIEW
 
 
+basePath : String
+basePath =
+    "albums"
+
+
 view : Model -> Html Msg
 view model =
     div [ class "ui grid" ]
@@ -77,8 +82,8 @@ view model =
         , div [ class "spacer row" ] []
         , div [ class "row" ]
             [ match
-                (UrlParser.s "albums" </> string)
+                (UrlParser.s basePath </> string)
                 model.location
-                (albumsContainer model "/albums")
+                (albumsContainer model ("/" ++ basePath))
             ]
         ]

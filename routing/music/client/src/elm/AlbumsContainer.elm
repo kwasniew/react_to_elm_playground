@@ -25,7 +25,7 @@ albumsContainer model pathname =
                 [ verticalMenu model.albums pathname ]
             , div [ class "ui ten wide column" ]
                 [ (matchWithData
-                    (UrlParser.s "albums" </> string)
+                    (UrlParser.s (String.dropLeft 1 pathname) </> string)
                     model.location
                     (\id ->
                         albumsView model.albums id (pathname ++ "/")
