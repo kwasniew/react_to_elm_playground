@@ -1,4 +1,4 @@
-port module Client exposing (getAlbums, setToken, removeToken)
+port module Client exposing (getAlbums, setToken, removeToken, login)
 
 import Http exposing (..)
 import Json.Decode exposing (..)

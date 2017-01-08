@@ -86,12 +86,12 @@ update msg model =
             ( model, newUrl url )
 
         PerformLogin ->
-            ( { model | loginInProgress = True }, Cmd.none )
+            ( { model | loginInProgress = True }, Client.login )
 
         TokenReceived response ->
             case response of
                 Ok token ->
-                    ( { model | token = Just token }, Client.setToken token )
+                    ( { model | token = Just token }, Cmd.batch [ Client.setToken token, newUrl (basePath ++ "/") ] )
 
                 Result.Err err ->
                     error model err
