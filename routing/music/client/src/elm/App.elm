@@ -18,7 +18,13 @@ import Http
 
 main : Program Never Model Msg
 main =
-    Navigation.program UrlChange { init = init, view = view, update = update, subscriptions = (\_ -> Sub.none) }
+    Navigation.program
+        UrlChange
+        { init = init
+        , view = view
+        , update = update
+        , subscriptions = (\_ -> Sub.none)
+        }
 
 
 
@@ -43,7 +49,10 @@ init location =
       , loginInProgress = False
       , token = Nothing
       }
-    , Cmd.batch [ redirectToBasePath location, redirectUnauthorizedAccess Nothing location ]
+    , Cmd.batch
+        [ redirectToBasePath location
+        , redirectUnauthorizedAccess Nothing location
+        ]
     )
 
 
@@ -96,7 +105,10 @@ update msg model =
                 )
             else
                 ( { model | location = location }
-                , Cmd.batch [ redirectToBasePath location, redirectUnauthorizedAccess model.token location ]
+                , Cmd.batch
+                    [ redirectToBasePath location
+                    , redirectUnauthorizedAccess model.token location
+                    ]
                 )
 
         LinkTo url ->
