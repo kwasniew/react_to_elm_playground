@@ -16,8 +16,16 @@ type alias Message =
     }
 
 
+type alias Thread =
+    { id : String
+    , title : String
+    , messages : List Message
+    }
+
+
 type alias Model =
-    { messages : List Message
+    { threads : List Thread
+    , activeThread : String
     , message : String
     , currentSeed : Seed
     , currentUuid : Uuid
@@ -30,7 +38,17 @@ init seed =
         ( newUuid, newSeed ) =
             Random.Pcg.step Uuid.uuidGenerator (initialSeed seed)
     in
-        ( { messages = []
+        ( { threads =
+                [ { id = "1-fca2"
+                  , title = "Buzz Aldrin"
+                  , messages = []
+                  }
+                , { id = "2-be91"
+                  , title = "Michael Collins"
+                  , messages = []
+                  }
+                ]
+          , activeThread = "1-fca2"
           , message = ""
           , currentSeed = newSeed
           , currentUuid = newUuid
@@ -51,7 +69,7 @@ update msg model =
             ( model, now )
 
         DeleteMessage id ->
-            ( { model | messages = List.filter (\message -> message.id /= id) model.messages }, Cmd.none )
+            ( { model | threads = deleteMessage model id }, Cmd.none )
 
         UpdateMessageText text ->
             ( { model | message = text }, Cmd.none )
@@ -65,13 +83,37 @@ update msg model =
                     Message model.message time model.currentUuid
             in
                 ( { model
-                    | messages = model.messages ++ [ message ]
+                    | threads = newMessage model message
                     , message = ""
                     , currentUuid = newUuid
                     , currentSeed = newSeed
                   }
                 , Cmd.none
                 )
+
+
+newMessage : Model -> Message -> List Thread
+newMessage model message =
+    List.map
+        (\thread ->
+            if thread.id == model.activeThread then
+                { thread | messages = thread.messages ++ [ message ] }
+            else
+                thread
+        )
+        model.threads
+
+
+deleteMessage : Model -> Uuid -> List Thread
+deleteMessage model id =
+    List.map
+        (\thread ->
+            if thread.id == model.activeThread then
+                { thread | messages = List.filter (\message -> message.id /= id) thread.messages }
+            else
+                thread
+        )
+        model.threads
 
 
 type Msg
@@ -109,12 +151,44 @@ messageInput message =
         ]
 
 
+thread : String -> Thread -> Html Msg
+thread message t =
+    div [ class "comment" ]
+        [ messageView t.messages
+        , messageInput message
+        ]
+
+
+tabClass : Thread -> String -> String
+tabClass thread id =
+    if thread.id == id then
+        "active item"
+    else
+        "item"
+
+
+threadTabs : Model -> Html Msg
+threadTabs model =
+    div [ class "ui top attached tabular menu" ]
+        (List.map
+            (\thread ->
+                div [ class <| tabClass thread model.activeThread ]
+                    [ text thread.title ]
+            )
+            model.threads
+        )
+
+
 view : Model -> Html Msg
 view model =
     div [ class "ui segment" ]
-        [ messageView model.messages
-        , messageInput model.message
-        ]
+        (threadTabs model
+            :: (List.filter
+                    (\thread -> thread.id == model.activeThread)
+                    model.threads
+                    |> List.map (thread model.message)
+               )
+        )
 
 
 main : Program Int Model Msg
