@@ -92,28 +92,28 @@ update msg model =
                 )
 
 
-newMessage : Model -> Message -> List Thread
-newMessage model message =
+inActiveThread : Model -> (Thread -> Thread) -> List Thread
+inActiveThread model update =
     List.map
         (\thread ->
             if thread.id == model.activeThread then
-                { thread | messages = thread.messages ++ [ message ] }
+                update thread
             else
                 thread
         )
         model.threads
+
+
+newMessage : Model -> Message -> List Thread
+newMessage model message =
+    inActiveThread model
+        (\thread -> { thread | messages = thread.messages ++ [ message ] })
 
 
 deleteMessage : Model -> Uuid -> List Thread
 deleteMessage model id =
-    List.map
-        (\thread ->
-            if thread.id == model.activeThread then
-                { thread | messages = List.filter (\message -> message.id /= id) thread.messages }
-            else
-                thread
-        )
-        model.threads
+    inActiveThread model
+        (\thread -> { thread | messages = List.filter (\message -> message.id /= id) thread.messages })
 
 
 type Msg
