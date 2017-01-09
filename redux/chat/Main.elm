@@ -91,6 +91,9 @@ update msg model =
                 , Cmd.none
                 )
 
+        OpenThread id ->
+            ( { model | activeThread = id }, Cmd.none )
+
 
 inActiveThread : Model -> (Thread -> Thread) -> List Thread
 inActiveThread model update =
@@ -121,6 +124,7 @@ type Msg
     | DeleteMessage Uuid
     | UpdateMessageText String
     | NewTime Time
+    | OpenThread String
 
 
 messageView : List Message -> Html Msg
@@ -172,7 +176,7 @@ threadTabs model =
     div [ class "ui top attached tabular menu" ]
         (List.map
             (\thread ->
-                div [ class <| tabClass thread model.activeThread ]
+                div [ class <| tabClass thread model.activeThread, onClick (OpenThread thread.id) ]
                     [ text thread.title ]
             )
             model.threads
