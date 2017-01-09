@@ -3,47 +3,84 @@ module Main exposing (main)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onInput)
+import Task
+import Time exposing (Time)
+import Random.Pcg exposing (Seed, initialSeed, step)
+import Uuid exposing (Uuid)
+
+
+type alias Message =
+    { text : String
+    , timestamp : Time
+    , id : Uuid
+    }
 
 
 type alias Model =
-    { messages : List String
+    { messages : List Message
     , message : String
+    , currentSeed : Seed
+    , currentUuid : Uuid
     }
 
 
-model : Model
-model =
-    { messages = []
-    , message = ""
-    }
+init : Int -> ( Model, Cmd Msg )
+init seed =
+    let
+        ( newUuid, newSeed ) =
+            Random.Pcg.step Uuid.uuidGenerator (initialSeed seed)
+    in
+        ( { messages = []
+          , message = ""
+          , currentSeed = newSeed
+          , currentUuid = newUuid
+          }
+        , Cmd.none
+        )
 
 
-update : Msg -> Model -> Model
+now : Cmd Msg
+now =
+    Task.perform NewTime Time.now
+
+
+update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         AddMessage ->
-            { model | messages = model.messages ++ [ model.message ], message = "" }
+            ( model, now )
 
         DeleteMessage i ->
-            { model | messages = (List.take i model.messages) ++ (List.drop (i + 1) model.messages) }
+            ( { model | messages = (List.take i model.messages) ++ (List.drop (i + 1) model.messages) }, Cmd.none )
 
         UpdateMessageText text ->
-            { model | message = text }
+            ( { model | message = text }, Cmd.none )
+
+        NewTime time ->
+            let
+                ( newUuid, newSeed ) =
+                    Random.Pcg.step Uuid.uuidGenerator model.currentSeed
+
+                message =
+                    Message model.message time model.currentUuid
+            in
+                ( { model | messages = model.messages ++ [ message ] }, Cmd.none )
 
 
 type Msg
     = AddMessage
     | DeleteMessage Int
     | UpdateMessageText String
+    | NewTime Time
 
 
-messageView : List String -> Html Msg
+messageView : List Message -> Html Msg
 messageView messages =
     div [ class "ui comments" ]
         (List.indexedMap
             (\index message ->
                 div []
-                    [ div [ class "comment", onClick (DeleteMessage index) ] [ text message ]
+                    [ div [ class "comment", onClick (DeleteMessage index) ] [ text message.text ]
                     ]
             )
             messages
@@ -66,6 +103,6 @@ view model =
         ]
 
 
-main : Program Never Model Msg
+main : Program Int Model Msg
 main =
-    beginnerProgram { model = model, update = update, view = view }
+    programWithFlags { init = init, update = update, view = view, subscriptions = (\_ -> Sub.none) }
