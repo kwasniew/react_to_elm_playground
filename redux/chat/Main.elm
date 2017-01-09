@@ -50,8 +50,8 @@ update msg model =
         AddMessage ->
             ( model, now )
 
-        DeleteMessage i ->
-            ( { model | messages = (List.take i model.messages) ++ (List.drop (i + 1) model.messages) }, Cmd.none )
+        DeleteMessage id ->
+            ( { model | messages = List.filter (\message -> message.id /= id) model.messages }, Cmd.none )
 
         UpdateMessageText text ->
             ( { model | message = text }, Cmd.none )
@@ -64,12 +64,19 @@ update msg model =
                 message =
                     Message model.message time model.currentUuid
             in
-                ( { model | messages = model.messages ++ [ message ] }, Cmd.none )
+                ( { model
+                    | messages = model.messages ++ [ message ]
+                    , message = ""
+                    , currentUuid = newUuid
+                    , currentSeed = newSeed
+                  }
+                , Cmd.none
+                )
 
 
 type Msg
     = AddMessage
-    | DeleteMessage Int
+    | DeleteMessage Uuid
     | UpdateMessageText String
     | NewTime Time
 
@@ -77,10 +84,10 @@ type Msg
 messageView : List Message -> Html Msg
 messageView messages =
     div [ class "ui comments" ]
-        (List.indexedMap
-            (\index message ->
+        (List.map
+            (\message ->
                 div []
-                    [ div [ class "comment", onClick (DeleteMessage index) ] [ text message.text ]
+                    [ div [ class "comment", onClick (DeleteMessage message.id) ] [ text message.text ]
                     ]
             )
             messages
