@@ -87,7 +87,14 @@ messageView messages =
         (List.map
             (\message ->
                 div []
-                    [ div [ class "comment", onClick (DeleteMessage message.id) ] [ text message.text ]
+                    [ div [ class "comment", onClick (DeleteMessage message.id) ]
+                        [ div [ class "text" ]
+                            [ text message.text
+                            , span [ class "metadata" ]
+                                [ text <| "@" ++ (toString message.timestamp)
+                                ]
+                            ]
+                        ]
                     ]
             )
             messages
