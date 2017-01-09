@@ -2,14 +2,14 @@
 
 
 ## Lessons learned
-- functional way of removing element by index: 
+- functional way of removing element by index:  
 `[
         ...state.messages.slice(0, action.index),
         ...state.messages.slice(
           action.index + 1, state.messages.length
         )
-]`
-vs
+]`  
+vs  
 `
 (List.take index model.messages) ++ (List.drop (index + 1) model.messages)
-`
+`  
