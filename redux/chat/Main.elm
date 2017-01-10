@@ -25,7 +25,7 @@ type alias Thread =
 
 type alias Model =
     { threads : List Thread
-    , activeThread : String
+    , activeThreadId : String
     , message : String
     , currentSeed : Seed
     , currentUuid : Uuid
@@ -48,7 +48,7 @@ init seed =
                   , messages = []
                   }
                 ]
-          , activeThread = "1-fca2"
+          , activeThreadId = "1-fca2"
           , message = ""
           , currentSeed = newSeed
           , currentUuid = newUuid
@@ -92,14 +92,14 @@ update msg model =
                 )
 
         OpenThread id ->
-            ( { model | activeThread = id }, Cmd.none )
+            ( { model | activeThreadId = id }, Cmd.none )
 
 
 inActiveThread : Model -> (Thread -> Thread) -> List Thread
 inActiveThread model update =
     List.map
         (\thread ->
-            if thread.id == model.activeThread then
+            if thread.id == model.activeThreadId then
                 update thread
             else
                 thread
@@ -176,7 +176,7 @@ threadTabs model =
     div [ class "ui top attached tabular menu" ]
         (List.map
             (\thread ->
-                div [ class <| tabClass thread model.activeThread, onClick (OpenThread thread.id) ]
+                div [ class <| tabClass thread model.activeThreadId, onClick (OpenThread thread.id) ]
                     [ text thread.title ]
             )
             model.threads
@@ -188,7 +188,7 @@ view model =
     div [ class "ui segment" ]
         (threadTabs model
             :: (List.filter
-                    (\thread -> thread.id == model.activeThread)
+                    (\thread -> thread.id == model.activeThreadId)
                     model.threads
                     |> List.map (thread model.message)
                )
