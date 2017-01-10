@@ -160,23 +160,62 @@ thread message t =
         ]
 
 
-tabClass : Thread -> String -> String
-tabClass thread id =
-    if thread.id == id then
-        "active item"
-    else
-        "item"
+active : Thread -> String -> Bool
+active thread id =
+    thread.id == id
 
 
 threadTabs : Model -> Html Msg
 threadTabs model =
+    tabs
+        (TabConfig
+            (List.map
+                (\thread ->
+                    Tab
+                        (active thread model.activeThreadId)
+                        thread.title
+                        thread.id
+                )
+                model.threads
+            )
+            OpenThread
+        )
+
+
+
+--  reusable tabs
+
+
+type alias TabConfig msg =
+    { tabs : List Tab
+    , onClick : String -> msg
+    }
+
+
+type alias Tab =
+    { active : Bool
+    , title : String
+    , id : String
+    }
+
+
+tabs : TabConfig msg -> Html msg
+tabs config =
     div [ class "ui top attached tabular menu" ]
         (List.map
-            (\thread ->
-                div [ class <| tabClass thread model.activeThreadId, onClick (OpenThread thread.id) ]
-                    [ text thread.title ]
+            (\tab ->
+                div
+                    [ class
+                        (if tab.active then
+                            "active item"
+                         else
+                            "item"
+                        )
+                    , onClick (config.onClick tab.id)
+                    ]
+                    [ text tab.title ]
             )
-            model.threads
+            config.tabs
         )
 
 
