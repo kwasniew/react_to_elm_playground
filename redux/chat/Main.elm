@@ -157,9 +157,9 @@ textFieldSubmit config =
 
 
 thread : String -> Thread -> Html Msg
-thread message t =
+thread message activeThread =
     div [ class "comment" ]
-        [ messageList t.messages DeleteMessage
+        [ messageList activeThread.messages DeleteMessage
         , textFieldSubmit { message = message, onClickMsg = AddMessage, onInputMsg = UpdateMessageText }
         ]
 
@@ -223,16 +223,19 @@ tabs config =
         )
 
 
+threadDisplay : Model -> List (Html Msg)
+threadDisplay model =
+    (List.filter
+        (\thread -> thread.id == model.activeThreadId)
+        model.threads
+        |> List.map (thread model.message)
+    )
+
+
 view : Model -> Html Msg
 view model =
     div [ class "ui segment" ]
-        (threadTabs model
-            :: (List.filter
-                    (\thread -> thread.id == model.activeThreadId)
-                    model.threads
-                    |> List.map (thread model.message)
-               )
-        )
+        (threadTabs model :: threadDisplay model)
 
 
 main : Program Int Model Msg
