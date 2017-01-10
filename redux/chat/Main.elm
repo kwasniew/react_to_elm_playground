@@ -156,16 +156,11 @@ textFieldSubmit config =
         ]
 
 
-messageInput : String -> Html Msg
-messageInput message =
-    textFieldSubmit { message = message, onClickMsg = AddMessage, onInputMsg = UpdateMessageText }
-
-
 thread : String -> Thread -> Html Msg
 thread message t =
     div [ class "comment" ]
         [ messageView t.messages
-        , messageInput message
+        , textFieldSubmit { message = message, onClickMsg = AddMessage, onInputMsg = UpdateMessageText }
         ]
 
 
