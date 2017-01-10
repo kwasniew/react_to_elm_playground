@@ -124,13 +124,13 @@ type Msg
     | OpenThread String
 
 
-messageView : List Message -> Html Msg
-messageView messages =
+messageList : List Message -> (Uuid -> msg) -> Html msg
+messageList messages onClickMsg =
     div [ class "ui comments" ]
         (List.map
             (\message ->
                 div []
-                    [ div [ class "comment", onClick (DeleteMessage message.id) ]
+                    [ div [ class "comment", onClick (onClickMsg message.id) ]
                         [ div [ class "text" ]
                             [ text message.text
                             , span [ class "metadata" ]
@@ -159,7 +159,7 @@ textFieldSubmit config =
 thread : String -> Thread -> Html Msg
 thread message t =
     div [ class "comment" ]
-        [ messageView t.messages
+        [ messageList t.messages DeleteMessage
         , textFieldSubmit { message = message, onClickMsg = AddMessage, onInputMsg = UpdateMessageText }
         ]
 
