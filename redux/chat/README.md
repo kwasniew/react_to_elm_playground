@@ -13,3 +13,5 @@ vs
 `
 (List.take index model.messages) ++ (List.drop (index + 1) model.messages)
 `  
+- when splitting update function by fields (like in the redux examples) we loose
+check for unused message types
