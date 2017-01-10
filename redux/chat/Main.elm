@@ -60,84 +60,8 @@ now =
     Task.perform NewTime Time.now
 
 
-threadsReducer : Msg -> Model -> List Thread
-threadsReducer msg model =
-    case msg of
-        DeleteMessage id ->
-            deleteMessage model id
-
-        NewTime time ->
-            let
-                message =
-                    Message model.message time (Tuple.second model.currentUuid)
-            in
-                newMessage model message
-
-        _ ->
-            model.threads
-
-
-activeThreadIdReducer : Msg -> String -> String
-activeThreadIdReducer msg current =
-    case msg of
-        OpenThread id ->
-            id
-
-        _ ->
-            current
-
-
-messageReducer : Msg -> String -> String
-messageReducer msg current =
-    case msg of
-        UpdateMessageText text ->
-            text
-
-        NewTime _ ->
-            ""
-
-        _ ->
-            current
-
-
-currentUuidReducer : Msg -> ( Seed, Uuid ) -> ( Seed, Uuid )
-currentUuidReducer msg current =
-    case msg of
-        NewTime _ ->
-            let
-                ( newUuid, newSeed ) =
-                    Random.Pcg.step Uuid.uuidGenerator (Tuple.first current)
-            in
-                ( newSeed, newUuid )
-
-        _ ->
-            current
-
-
-commandReducer : Msg -> Cmd Msg
-commandReducer msg =
-    case msg of
-        AddMessage ->
-            now
-
-        _ ->
-            Cmd.none
-
-
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    ( { model
-        | threads = threadsReducer msg model
-        , activeThreadId = activeThreadIdReducer msg model.activeThreadId
-        , message = messageReducer msg model.message
-        , currentUuid = currentUuidReducer msg model.currentUuid
-      }
-    , commandReducer msg
-    )
-
-
-xupdate : Msg -> Model -> ( Model, Cmd Msg )
-xupdate msg model =
     case msg of
         AddMessage ->
             ( model, now )

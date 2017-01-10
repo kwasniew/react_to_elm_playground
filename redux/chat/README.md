@@ -15,3 +15,4 @@ vs
 `  
 - when splitting update function by fields (like in the redux examples) we loose
 check for unused message types
+- I prefer update function split by message over split by model field (redux like reducer composition)
