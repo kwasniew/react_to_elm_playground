@@ -144,12 +144,21 @@ messageView messages =
         )
 
 
+
+--  generic text field with record param
+
+
+textFieldSubmit : { message : String, onClickMsg : msg, onInputMsg : String -> msg } -> Html msg
+textFieldSubmit config =
+    div [ class "ui input" ]
+        [ input [ type_ "text", onInput config.onInputMsg, value config.message ] []
+        , button [ class "ui primary button", onClick config.onClickMsg, type_ "submit" ] [ text "submit" ]
+        ]
+
+
 messageInput : String -> Html Msg
 messageInput message =
-    div [ class "ui input" ]
-        [ input [ type_ "text", onInput UpdateMessageText, value message ] []
-        , button [ class "ui primary button", onClick AddMessage, type_ "submit" ] [ text "submit" ]
-        ]
+    textFieldSubmit { message = message, onClickMsg = AddMessage, onInputMsg = UpdateMessageText }
 
 
 thread : String -> Thread -> Html Msg
@@ -183,7 +192,7 @@ threadTabs model =
 
 
 
---  reusable tabs
+--  generic tabs with type alias param
 
 
 type alias TabConfig msg =

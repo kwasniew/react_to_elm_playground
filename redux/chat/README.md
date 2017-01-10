@@ -19,3 +19,4 @@ check for unused message types
 - In Redux we have container and presentational components and some container components subscribe to store changes
 - In Elm it's much simpler. Top level view that we plug into main function always gets full model and we decide
 how much of the model we pass down to helper view functions (as function arguments)
+- When should records used as input params be type aliased?
